@@ -3,12 +3,8 @@ import { authController } from "../controllers/authControllers.ts";
 
 const router = new Router();
 
-router.get("/", (ctx) => {
-    ctx.response.body = authController.salute();
-});
+router.get("/", authController.salute);
 
-router.post("/registraUsuario", async (ctx) => {
-    ctx.response.body = await authController.registro(ctx);
-})
+router.post("/registraUsuario", authController.registro);
 
 export const ruta = router;

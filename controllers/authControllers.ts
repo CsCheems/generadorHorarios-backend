@@ -17,8 +17,12 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 export const authController = {
-  salute: () => {
-    return "Test: HOLA";
+  salute: (ctx: Context) => {
+    return ctx.response.body = {
+        statusCode: 200,
+        intMessage: "Saludos",
+        data: { message: "Hola Mundo!" },
+      };
   },
 
   registro: async (ctx: Context) => {
