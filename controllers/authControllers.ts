@@ -4,8 +4,9 @@ import { es } from "date-fns/locale";
 import admin from "firebase_admin";
 import {readJson} from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
 import { Context } from "@oak/oak";
-import { moment } from "npm:hono";
-import { JWTPayload, jwtVerify, SignJWT } from "npm:jose@5.9.6";
+import moment from "npm:moment";
+import { createJWT } from "../utils/jwt.ts";
+import { UsuarioData } from "../interfaces/i_usuario.ts";
 
 if (!admin.apps.length) {
   const serviceAccount = await readJson("./config/firebase.json") as Record<string, string>;
@@ -124,7 +125,7 @@ export const authController = {
       }
 
       const document = userQuery.docs[0];
-      const usuario = document.data;
+      const usuario = document.data() as UsuarioData;
       const pwValida = await compare(password, usuario.password);
 
       if(!pwValida){
@@ -137,21 +138,25 @@ export const authController = {
         return;
       }
 
-      const roleDoc = await db.collection("roles").doc(usuario.rol).get();
+      // const roleDoc = await db.collection("roles").doc(usuario.rol).get();
 
-      if(!roleDoc.exists){
-        ctx.response.status = 404;
-        ctx.response.body = {
-          statusCode: 404,
-          intMessage: "No encontrado",
-          data: {message: "No se encontro el rol de este usuario"},
-        };
-        return;
-      }
+      // if(!roleDoc.exists){
+      //   ctx.response.status = 404;
+      //   ctx.response.body = {
+      //     statusCode: 404,
+      //     intMessage: "No encontrado",
+      //     data: {message: "No se encontro el rol de este usuario"},
+      //   };
+      //   return;
+      // }
 
       const token = await createJWT({
-        
-      })
+        id: usuario.usuarioId,
+        usuario: usuario.usuario,
+        email: usuario.email,
+        telefono: usuario.telefono,
+        dob: usuario.fechaNacimiento,
+      });
 
       const ultimoLogin = moment().format('DD-MM-YYYY HH:mm:ss');
 
@@ -162,7 +167,8 @@ export const authController = {
         statusCode : 201,
         intMessage: "Login Existoso",
         data:{
-          message: "Credenciales correctas!"
+          message: "Credenciales correctas!",
+          token,
         },
       }
       return;
