@@ -4,7 +4,8 @@ import { es } from "date-fns/locale";
 import admin from "firebase_admin";
 import {readJson} from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
 import { Context } from "@oak/oak";
-import { moment } from "https://deno.land/x/momentjs@2.29.1-deno/mod.ts";
+import { moment } from "npm:hono";
+import { JWTPayload, jwtVerify, SignJWT } from "npm:jose@5.9.6";
 
 if (!admin.apps.length) {
   const serviceAccount = await readJson("./config/firebase.json") as Record<string, string>;
@@ -147,6 +148,10 @@ export const authController = {
         };
         return;
       }
+
+      const token = await createJWT({
+        
+      })
 
       const ultimoLogin = moment().format('DD-MM-YYYY HH:mm:ss');
 

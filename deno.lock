@@ -3,7 +3,8 @@
   "specifiers": {
     "npm:@types/express@4.17.15": "4.17.15",
     "npm:@types/node@*": "22.15.15",
-    "npm:firebase-admin@11.11.1": "11.11.1"
+    "npm:firebase-admin@11.11.1": "11.11.1",
+    "npm:jsonwebtoken@*": "9.0.2"
   },
   "npm": {
     "@babel/helper-string-parser@7.27.1": {
@@ -1674,6 +1675,8 @@
     "https://deno.land/x/jsonfile@1.0.0/mod.ts": "e9c1125d58078de9dc4b3ef43bcc644375af26bef565b7f623df706e97d76087",
     "https://deno.land/x/jsonfile@1.0.0/read_json.ts": "bbf7fa8f559e8540a8bbb837078a4f2b6b3e5d94dfc7c9aaf752ab9e1a00f029",
     "https://deno.land/x/jsonfile@1.0.0/write_json.ts": "89a6231f51a6759dfff8f1f5534d030c2239c22fc9f3c0b3305d424f4f1d5604",
+    "https://deno.land/x/momentjs@2.29.1-deno/mod.ts": "f0c8542988b812d2aeaabe4fe3d86e7638ba6dd469ac9dd252eb2d9a765b8b49",
+    "https://deno.land/x/momentjs@2.29.1-deno/node_modules/moment/moment.js": "7ba0da6b25146fe95a948b47ec8a7707b4bcf6a87390d4b655a0663e107f7845",
     "https://deno.land/x/oak@v12.6.1/application.ts": "3028d3f6fa5ee743de013881550d054372c11d83c45099c2d794033786d27008",
     "https://deno.land/x/oak@v12.6.1/body.ts": "1899761b97fc9d776f3710b2637fb047ba29b968609afc6c0e5219b1108e703c",
     "https://deno.land/x/oak@v12.6.1/buf_reader.ts": "26640736541598dbd9f2b84a9d0595756afff03c9ca55b66eef1911f7798b56d",
@@ -1710,7 +1713,8 @@
   },
   "workspace": {
     "dependencies": [
-      "npm:firebase-admin@11.11.1"
+      "npm:firebase-admin@11.11.1",
+      "npm:jsonwebtoken@*"
     ]
   }
 }

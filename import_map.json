@@ -4,6 +4,7 @@
     "bcrypt": "https://deno.land/x/bcrypt@v0.4.1/mod.ts",
     "datefns": "https://cdn.skypack.dev/date-fns",
     "date-fns/locale": "https://esm.sh/date-fns/locale/es",
-    "firebase_admin": "npm:firebase-admin@11.11.1"
+    "firebase_admin": "npm:firebase-admin@11.11.1",
+    "moment": "npm:hono"
   }
 }
