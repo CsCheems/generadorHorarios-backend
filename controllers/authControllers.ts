@@ -7,6 +7,7 @@ import { Context } from "@oak/oak";
 import moment from "npm:moment";
 import { createJWT } from "../utils/jwt.ts";
 import { UsuarioData } from "../interfaces/i_usuario.ts";
+import { RoleData } from "../interfaces/i_roles.ts";
 
 if (!admin.apps.length) {
   const serviceAccount = await readJson("./config/firebase.json") as Record<string, string>;
@@ -74,7 +75,7 @@ export const authController = {
         telefono: phone,
         fechaNacimiento: fecha,
         last_login: "",
-        rol: "divEXH8fhzEdMw0wwS4y",
+        rol: "ImO7B2IM7pKXGVwTCkGj",
         mfaActivo: false,
       });
 
@@ -138,17 +139,19 @@ export const authController = {
         return;
       }
 
-      // const roleDoc = await db.collection("roles").doc(usuario.rol).get();
+      const roleDoc = await db.collection("roles").doc(usuario.rol).get();
 
-      // if(!roleDoc.exists){
-      //   ctx.response.status = 404;
-      //   ctx.response.body = {
-      //     statusCode: 404,
-      //     intMessage: "No encontrado",
-      //     data: {message: "No se encontro el rol de este usuario"},
-      //   };
-      //   return;
-      // }
+      if(!roleDoc.exists){
+        ctx.response.status = 404;
+        ctx.response.body = {
+          statusCode: 404,
+          intMessage: "No encontrado",
+          data: {message: "No se encontro el rol de este usuario"},
+        };
+        return;
+      }
+
+      const roleUser = roleDoc.data() as RoleData;
 
       const token = await createJWT({
         id: usuario.usuarioId,
@@ -156,6 +159,8 @@ export const authController = {
         email: usuario.email,
         telefono: usuario.telefono,
         dob: usuario.fechaNacimiento,
+        rolId: usuario.rol,
+        rol: roleUser.rol
       });
 
       const ultimoLogin = moment().format('DD-MM-YYYY HH:mm:ss');

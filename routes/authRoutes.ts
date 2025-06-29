@@ -5,8 +5,8 @@ const router = new Router();
 
 router.get("/", authController.salute);
 
-router.post("/registraUsuario", authController.registro);
+router.post("/auth/registrar", authController.registro);
 
-router.post("/loginUsuario", authController.login);
+router.post("/auth/login", authController.login);
 
 export const ruta = router;
