@@ -6,7 +6,7 @@ const app = new Application();
 const port = 8080;
 
 app.use(oakCors({
-  origin: "http://localhost:5173", // Cambia esto si tu frontend está en otro puerto/origen
+  origin: "http://localhost:5173",
   credentials: true,
 }));
 
