@@ -32,7 +32,7 @@ export const authController = {
   registro: async (ctx: Context) => {
     const { nombre, apellidop, apellidom, email, phone, dob, username, password } = await ctx.request.body({ type: "json" }).value;
 
-    if (!nombre || apellidop || !apellidom ||!email || !phone || !dob || !username || !password) {
+    if (!nombre || !apellidop || !apellidom ||!email || !phone || !dob || !username || !password) {
       ctx.response.status = 400;
       ctx.response.body = {
         statusCode: 400,
