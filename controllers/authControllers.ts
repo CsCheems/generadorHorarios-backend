@@ -30,9 +30,9 @@ export const authController = {
   },
 
   registro: async (ctx: Context) => {
-    const { email, phone, dob, username, password } = await ctx.request.body({ type: "json" }).value;
+    const { nombre, apellidop, apellidom, email, phone, dob, username, password } = await ctx.request.body({ type: "json" }).value;
 
-    if (!email || !phone || !dob || !username || !password) {
+    if (!nombre || apellidop || !apellidom ||!email || !phone || !dob || !username || !password) {
       ctx.response.status = 400;
       ctx.response.body = {
         statusCode: 400,
@@ -43,6 +43,26 @@ export const authController = {
     }
 
     try {
+
+      const adminQuery = await db.collection("administrador").where("email", "==", email).get();
+      if(!adminQuery.empty){
+        ctx.response.status = 409;
+        ctx.response.body = {
+          statusCode: 409,
+          intMessage: "Conflicto",
+          data: { message: "El correo ya está en uso"},
+        }
+      }
+
+      const nuevoAdmin = await db.collection("administrador").add({
+        nombre,
+        apellidom,
+        apellidop,
+        email,
+      });
+
+      await nuevoAdmin.update({ idAdministrador: nuevoAdmin.id});
+
       const userQuery = await db.collection("usuarios").where("usuario", "==", username).get();
       if (!userQuery.empty) {
         ctx.response.status = 409;
@@ -68,7 +88,8 @@ export const authController = {
       const hashPassword = await hash(password);
       const fecha = format(new Date(dob), "dd/MM/yyyy", { locale: es });
 
-      const nuevoUsuario = await db.collection("usuarios").add({
+      await db.collection("usuarios").add({
+        usuarioId: nuevoAdmin.id, 
         usuario: username,
         password: hashPassword,
         email,
@@ -78,8 +99,6 @@ export const authController = {
         rol: "ImO7B2IM7pKXGVwTCkGj",
         mfaActivo: false,
       });
-
-      await nuevoUsuario.update({ usuarioId: nuevoUsuario.id });
 
       ctx.response.status = 201;
       ctx.response.body = {
