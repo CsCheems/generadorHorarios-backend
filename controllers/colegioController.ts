@@ -10,9 +10,9 @@ import { ColegioData } from "../interfaces/i_colegio.ts";
 export const colegioController = {
 
   registrar: async (ctx: Context) => {
-    const { claveColegio, nombre, direccion, telefono, email } = await ctx.request.body({ type: "json" }).value;
-
-    if (!claveColegio || !nombre || !direccion || !telefono || !email) {
+    const { claveColegio, nombreColegio, direccion, telefono, email } = await ctx.request.body({ type: "json" }).value;
+    console.log("Datos recibidos:", { claveColegio, nombreColegio, direccion, telefono, email });
+    if (!claveColegio || !nombreColegio || !direccion || !telefono || !email) {
       ctx.response.status = 400;
       ctx.response.body = {
         statusCode: 400,
@@ -35,7 +35,7 @@ export const colegioController = {
       }
 
       const nuevoColegio = await db.collection("colegios").add({
-        nombre,
+        nombreColegio,
         direccion,
         telefono,
         email,
@@ -64,6 +64,7 @@ export const colegioController = {
     try {
       const colegiosSnapshot = await db.collection("colegios").get();
       const colegios = colegiosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      console.log("Colegios encontrados:", colegios);
 
       ctx.response.status = 200;
       ctx.response.body = {
