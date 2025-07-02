@@ -1,10 +1,10 @@
-import { hash, compare } from "bcrypt";
+import { hash } from "bcrypt";
 import { format } from "datefns";
 import { es } from "date-fns/locale";
+import process from "node:process";
 import admin from "firebase_admin";
 import {readJson} from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
 import { Context } from "@oak/oak";
-import moment from "npm:moment";
 import { createJWT } from "../utils/jwt.ts";
 import nodemailer from "npm:nodemailer";
 import "https://deno.land/std@0.224.0/dotenv/load.ts";
@@ -25,9 +25,9 @@ export const authController = {
     registro: async (ctx: Context) => {
         const { apellidoPaterno, apellidoMaterno, 
             nombres, email, matricula, grupos, 
-            horasRestringidas, materiasAsignadas } = await ctx.request.body({type: "json"}).value;
+            horasRestringidas, materiasAsignadas, idAdmin } = await ctx.request.body({type: "json"}).value;
 
-        if(!apellidoPaterno || !apellidoMaterno || !nombres || !email || !matricula || !grupos || horasRestringidas || !materiasAsignadas){
+        if(!apellidoPaterno || !apellidoMaterno || !nombres || !email || !matricula || !grupos || !horasRestringidas || !materiasAsignadas || !idAdmin){
             ctx.response.status = 400;
             ctx.response.body = {
                 statusCode: 400,
@@ -58,6 +58,7 @@ export const authController = {
                 grupos,
                 horasRestringidas,
                 materiasAsignadas,
+                idAdmin,
                 activo: false
             });
 
@@ -116,5 +117,79 @@ export const authController = {
                 data: { message: "Error al crear el profesor o usuario" },
             };
         }
-    }    
+    },
+    
+    activarProfesor: async (ctx: Context) => {
+        const { email, phone, dob, username, password, activationToken } = await ctx.request.body({type: "json"}).value;
+
+        if(!email || !phone || !dob || !username || !password || !activationToken){
+            ctx.response.status = 400;
+            ctx.response.body = {
+                statusCode: 400,
+                intMessage: "Datos incompletos",
+                data: { message: "Se necesitan todos los datos"},
+            }
+            return;
+        }
+
+        try {
+            
+            const usuarioQuery = await db.collection("usuarios").where("email", "==", email).get();
+
+            if (usuarioQuery.empty) {
+                ctx.response.status = 404;
+                ctx.response.body = {
+                    statusCode: 404,
+                    intMessage: "Usuario no encontrado",
+                    data: { message: "No se encontró un usuario con ese email" },
+                };
+                return;
+            }
+
+            const usuarioDoc = usuarioQuery.docs[0];
+            const dataUsuario = usuarioDoc.data();
+
+            if(dataUsuario.activationToken !== activationToken){
+                ctx.response.status = 401;
+                ctx.response.body = {
+                    statusCode: 401,
+                    intMessage: "Token Invalido",
+                    data: { message: "El token de activacion no coincide"}
+                };
+                return;
+            }
+            
+            const hashPassword = await hash(password);
+            const fecha = format(new Date(dob), "dd/MM/yyyy", { locale: es });
+
+            await db.collection("usuarios").doc(usuarioDoc.id).update({
+                telefono: phone,
+                fechaNacimiento: fecha,
+                usuario: username,
+                password: hashPassword,
+                activationToken: null
+            });
+
+            await db.collection("profesores").doc(dataUsuario.usuarioId).update({
+                activo: true
+            });
+
+            ctx.response.status = 200;
+            ctx.response.body = {
+                statusCode: 200,
+                intMessage: "Profesor activado",
+                data: { message: "La cuenta ha sido activada correctamente" },
+            };
+
+        } catch (error) {
+            console.error("Error al actualizar usuario:", error);
+            ctx.response.status = 500;
+            ctx.response.body = {
+                statusCode: 500,
+                intMessage: "Error interno del servidor",
+                data: { message: "Ocurrió un error al procesar la solicitud" },
+            };
+        }
+
+    }
 }
