@@ -1,4 +1,4 @@
-import { db } from "../config/firebase.ts";
+import { db } from "../config/firebase.ts";  
 import { hash, compare } from "bcrypt";
 import { format } from "datefns";
 import { es } from "date-fns/locale";

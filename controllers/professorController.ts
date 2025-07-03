@@ -2,23 +2,11 @@ import { hash } from "bcrypt";
 import { format } from "datefns";
 import { es } from "date-fns/locale";
 import process from "node:process";
-import admin from "firebase_admin";
-import {readJson} from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
+import { db } from "../config/firebase.ts";  
 import { Context } from "@oak/oak";
 import { createJWT } from "../utils/jwt.ts";
 import nodemailer from "npm:nodemailer";
 import "https://deno.land/std@0.224.0/dotenv/load.ts";
-
-if (!admin.apps.length) {
-  const serviceAccount = await readJson("./config/firebase.json") as Record<string, string>;
-  serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
-
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
-
-const db = admin.firestore();
 
 export const authController = {
 

@@ -1,11 +1,7 @@
-import { db } from "../config/firebase.ts";
-import { hash, compare } from "bcrypt";
-import { format } from "datefns";
-import { es } from "date-fns/locale";
+import { db } from "../config/firebase.ts";  
 import { Context } from "@oak/oak";
-import moment from "npm:moment";
-import { createJWT } from "../utils/jwt.ts";
-import { ColegioData } from "../interfaces/i_colegio.ts";
+
+type ParamsContext = Context<{ id: string }>;
 
 export const colegioController = {
 
@@ -51,11 +47,12 @@ export const colegioController = {
       };
 
     } catch (error) {
+      console.error("Error en registro:", error);
       ctx.response.status = 500;
       ctx.response.body = {
         statusCode: 500,
         intMessage: "Error interno del servidor",
-        data: { message: error.message },
+        data: { message: "Error al tratar de registrar colegio" },
       };
     }
   },
@@ -74,17 +71,18 @@ export const colegioController = {
       };
 
     } catch (error) {
+      console.error("Error en registro:", error);
       ctx.response.status = 500;
       ctx.response.body = {
         statusCode: 500,
         intMessage: "Error interno del servidor",
-        data: { message: error.message },
+        data: { message: "Error al tratar de obtener lista de colegios" },
       };
     }
   },
 
-  obtenerPorId: async (ctx: Context) => {
-    const id = ctx.params.id;  
+  obtenerPorId: async (ctx: ParamsContext) => {
+    const id = ctx.params.id; 
     if (!id) {
       ctx.response.status = 400;
       ctx.response.body = {
@@ -114,11 +112,12 @@ export const colegioController = {
       };
 
     } catch (error) {
+      console.error("Error en registro:", error);
       ctx.response.status = 500;
       ctx.response.body = {
         statusCode: 500,
         intMessage: "Error interno del servidor",
-        data: { message: error.message },
+        data: { message: "Error al obtener colegio especifico" },
       };
     }
     },
