@@ -2,32 +2,23 @@ import { hash } from "bcrypt";
 import { format } from "datefns";
 import { es } from "date-fns/locale";
 import process from "node:process";
-import admin from "firebase_admin";
+import { db } from "../config/firebase.ts";
 import {readJson} from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
 import { Context } from "@oak/oak";
 import { createJWT } from "../utils/jwt.ts";
 import nodemailer from "npm:nodemailer";
 import "https://deno.land/std@0.224.0/dotenv/load.ts";
 
-if (!admin.apps.length) {
-  const serviceAccount = await readJson("./config/firebase.json") as Record<string, string>;
-  serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
-
-const db = admin.firestore();
-
-export const authController = {
+export const profesorController = {
 
     registro: async (ctx: Context) => {
         const { apellidoPaterno, apellidoMaterno, 
-            nombres, email, matricula, grupos, 
-            horasRestringidas, materiasAsignadas, idAdmin } = await ctx.request.body({type: "json"}).value;
+            nombre, horasRestringidas, horasTrabajo, grupos, materiasAsignadas } = await ctx.request.body({type: "json"}).value;
+            console.log("Datos recibidos:", { apellidoPaterno, apellidoMaterno, nombre, horasRestringidas, horasTrabajo, grupos, materiasAsignadas });
 
-        if(!apellidoPaterno || !apellidoMaterno || !nombres || !email || !matricula || !grupos || !horasRestringidas || !materiasAsignadas || !idAdmin){
+        //if(!apellidoPaterno || !apellidoMaterno || !nombres || !email || !matricula || !grupos || !horasRestringidas || !materiasAsignadas || !idAdmin){
+        if(!apellidoPaterno || !apellidoMaterno || !nombre || !horasRestringidas || !horasTrabajo){
             ctx.response.status = 400;
             ctx.response.body = {
                 statusCode: 400,
@@ -38,7 +29,7 @@ export const authController = {
         }
 
         try{
-            const professorQuery = await db.collection("profesores").where("email", "==", email).get();
+            /*const professorQuery = await db.collection("profesores").where("email", "==", email).get();
             if(!professorQuery.empty){
                 ctx.response.status = 409;
                 ctx.response.body = {
@@ -47,9 +38,9 @@ export const authController = {
                     data: { message: "El email ya esta en uso"},
                 };
                 return;
-            }
+            }*/
 
-            const nuevoProfesor = await db.collection("profesores").add({
+            /*const nuevoProfesor = await db.collection("profesores").add({
                 apellidoPaterno, 
                 apellidoMaterno,
                 nombres,
@@ -99,7 +90,20 @@ export const authController = {
                 mfaActivo: false,
                 usuarioId: nuevoProfesor.id,
                 activationToken: token 
-            });
+            });*/
+
+            const nuevoProfesor = {
+                apellidoPaterno, 
+                apellidoMaterno,
+                nombre,
+                horasTrabajo: horasTrabajo || 0,
+                grupos: grupos || [],
+                horasRestringidas: horasRestringidas || [],
+                materiasAsignadas: materiasAsignadas || [],
+                activo: false
+            };
+            const profesorDoc = await db.collection("profesores").add(nuevoProfesor);
+            await profesorDoc.update({ idProfesor: profesorDoc.id });
 
             ctx.response.status = 201;
             ctx.response.body = {
@@ -191,5 +195,90 @@ export const authController = {
             };
         }
 
+    },
+
+    listar: async (ctx: Context) => {
+        try {
+            const profesoresSnapshot = await db.collection("profesores").get();
+            const profesores = profesoresSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            console.log("Profesores encontrados:", profesores);
+
+            if (profesores.length === 0) {
+                ctx.response.status = 404;
+                ctx.response.body = {
+                    statusCode: 404,
+                    intMessage: "No hay profesores registrados",
+                    data: { message: "No se encontraron profesores" },
+                };
+                return;
+            }
+
+            ctx.response.status = 200;
+            ctx.response.body = {
+                statusCode: 200,
+                intMessage: "Lista de profesores",
+                data: profesores,
+            };
+
+        } catch (error) {
+            console.error("Error al listar profesores:", error);
+            ctx.response.status = 500;
+            ctx.response.body = {
+                statusCode: 500,
+                intMessage: "Error interno del servidor",
+                data: { message: "Ocurrió un error al procesar la solicitud" },
+            };
+        }
+    },
+
+    asignacion: async (ctx: Context) => {
+
+        const { idProfesor, materias } = await ctx.request.body({ type: "json" }).value;
+        console.log("Datos recibidos para asignación:", { idProfesor, materias });
+
+        if (!idProfesor || !materias || !Array.isArray(materias)) {
+            ctx.response.status = 400;
+            ctx.response.body = {
+                statusCode: 400,
+                intMessage: "Datos incompletos",
+                data: { message: "Se necesitan todos los datos" },
+            };
+            return;
+        }
+
+        try {
+            const profesorDoc = await db.collection("profesores").doc(idProfesor).get();
+
+            if (!profesorDoc.exists) {
+                ctx.response.status = 404;
+                ctx.response.body = {
+                    statusCode: 404,
+                    intMessage: "Profesor no encontrado",
+                    data: { message: "No se encontró un profesor con ese ID" },
+                };
+                return;
+            }
+
+            await db.collection("profesores").doc(idProfesor).update({
+                materiasAsignadas: materias
+            });
+
+            ctx.response.status = 200;
+            ctx.response.body = {
+                statusCode: 200,
+                intMessage: "Materias asignadas",
+                data: { message: "Las materias han sido asignadas correctamente" },
+            };
+        } catch (error) {
+            console.error("Error al asignar materias:", error);
+            ctx.response.status = 500;
+            ctx.response.body = {
+                statusCode: 500,
+                intMessage: "Error interno del servidor",
+                data: { message: "Ocurrió un error al procesar la solicitud" },
+            };
+        }
+
     }
-}
+
+};

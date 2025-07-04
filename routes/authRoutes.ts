@@ -1,21 +1,43 @@
 import { Router } from "@oak/oak";
 import { authController } from "../controllers/authControllers.ts";
 import { colegioController } from "../controllers/colegioController.ts";
+import { profesorController } from "../controllers/professorController.ts";
 
 const router = new Router();
 
 router.get("/", authController.salute);
 
+//user
 router.post("/auth/registrar", authController.registro);
 
 router.post("/auth/login", authController.login);
+
+//colegio
 
 router.post("/colegio/registrar", colegioController.registrar);
 
 router.get("/colegio/listar", colegioController.listar);
 
-router.get("/colegio/:id", colegioController.obtenerPorId);
+//router.get("/colegio/:id", colegioController.obtenerPorId);
+
+router.post("/colegio/registrarGrupo", colegioController.registrarGrupo);
+
+//router.get("/colegio/gruposPorColegio", colegioController.gruposPorColegio);
+
+router.post("/colegio/materiaRegistrar", colegioController.materiaRegistrar);
+
+router.get("/colegio/materias", colegioController.lista);
 
 //router.put("/colegio/:id", colegioController.actualizar);
+
+//profesor
+
+//router.post("/profesor/activar", profesorController.activarProfesor);
+
+router.post("/profesor/registrar", profesorController.registro);
+
+router.get("/profesor/listar", profesorController.listar);
+
+router.post("/profesor/asignacion", profesorController.asignacion);
 
 export const ruta = router;

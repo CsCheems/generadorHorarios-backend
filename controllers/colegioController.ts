@@ -83,7 +83,7 @@ export const colegioController = {
     }
   },
 
-  obtenerPorId: async (ctx: Context) => {
+  /*obtenerPorId: async (ctx: Context) => {
     const id = ctx.params.id;  
     if (!id) {
       ctx.response.status = 400;
@@ -121,6 +121,176 @@ export const colegioController = {
         data: { message: error.message },
       };
     }
-    },
+    },*/
 
+  registrarGrupo: async (ctx: Context) => {
+    const { nombreGrupo, nivel, idColegio } = await ctx.request.body({ type: "json" }).value;
+    console.log("Datos recibidos para registrar grupo:", { nombreGrupo, nivel, idColegio });
+
+
+    if (!nombreGrupo || !nivel || !idColegio) {
+      ctx.response.status = 400;
+      ctx.response.body = {
+        statusCode: 400,
+        intMessage: "Datos incompletos",
+        data: { message: "Todos los campos son requeridos" },
+      };
+      return;
+    }
+
+    try {
+      const colegioDoc = await db.collection("colegios").doc(idColegio).get();
+      if (!colegioDoc.exists) {
+        ctx.response.status = 404;
+        ctx.response.body = {
+          statusCode: 404,
+          intMessage: "Colegio no encontrado",
+          data: { message: "No se encontró un colegio con ese ID" },
+        };
+        return;
+      }
+
+      const nuevoGrupo = await db.collection("grupos").add({
+        nombreGrupo,
+        nivel,
+        idColegio,
+      });
+
+      await nuevoGrupo.update({ idGrupo: nuevoGrupo.id });
+
+      ctx.response.status = 201;
+      ctx.response.body = {
+        statusCode: 201,
+        intMessage: "Grupo registrado",
+        data: { idGrupo: nuevoGrupo.id },
+      };
+
+    } catch (error) {
+      ctx.response.status = 500;
+      ctx.response.body = {
+        statusCode: 500,
+        intMessage: "Error interno del servidor",
+        data: { message: error.message },
+      };
+    }
+  },
+
+  /*gruposPorColegio: async (ctx: Context) => {
+    const idColegio = ctx.params.id;
+    console.log("ID del colegio recibido:", idColegio);
+
+    if (!idColegio) {
+      ctx.response.status = 400;
+      ctx.response.body = {
+        statusCode: 400,
+        intMessage: "ID requerido",
+        data: { message: "El ID del colegio es requerido" },
+      };
+      return;
+    }
+
+    try {
+      const gruposSnapshot = await db.collection("grupos").where("idColegio", "==", idColegio).get();
+      const grupos = gruposSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      if (grupos.length === 0) {
+        ctx.response.status = 404;
+        ctx.response.body = {
+          statusCode: 404,
+          intMessage: "No se encontraron grupos",
+          data: { message: "No se encontraron grupos para este colegio" },
+        };
+        return;
+      }
+
+      ctx.response.status = 200;
+      ctx.response.body = {
+        statusCode: 200,
+        intMessage: "Grupos encontrados",
+        data: grupos,
+      };
+
+    } catch (error) {
+      ctx.response.status = 500;
+      ctx.response.body = {
+        statusCode: 500,
+        intMessage: "Error interno del servidor",
+        data: { message: error.message },
+      };
+    }
+  },*/
+
+  /*const colegioDoc = await db.collection("colegios").doc(idColegio).get();
+      if (!colegioDoc.exists) {
+        ctx.response.status = 404;
+        ctx.response.body = {
+          statusCode: 404,
+          intMessage: "Colegio no encontrado",
+          data: { message: "No se encontró un colegio con ese ID" },
+        };
+        return;
+      }*/
+
+  materiaRegistrar: async (ctx: Context) => {
+    const { nombreMateria, horasSemanales, nivel, grado } = await ctx.request.body({ type: "json" }).value;
+    console.log("Datos recibidos para registrar materia:", { nombreMateria, horasSemanales, nivel, grado });
+    if (!nombreMateria || !horasSemanales || !nivel || !grado) {
+      ctx.response.status = 400;
+      ctx.response.body = {
+        statusCode: 400,
+        intMessage: "Datos incompletos",
+        data: { message: "Todos los campos son requeridos" },
+      };
+      return;
+    }
+    try {
+      
+      const nuevaMateria = await db.collection("materias").add({
+        nombreMateria,
+        horasSemanales,
+        nivel,
+        grado
+      });
+
+      await nuevaMateria.update({ idMateria: nuevaMateria.id });
+
+      ctx.response.status = 201;
+      ctx.response.body = {
+        statusCode: 201,
+        intMessage: "Materia registrada",
+        data: { idMateria: nuevaMateria.id },
+      };
+
+    } catch (error) {
+      ctx.response.status = 500;
+      ctx.response.body = {
+        statusCode: 500,
+        intMessage: "Error interno del servidor",
+        data: { message: error.message },
+      };
+    }
+  },
+
+  lista : async (ctx: Context) => {
+    try {
+      const materiasSnapshot = await db.collection("materias").get();
+      const materias = materiasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      console.log("Materias encontradas:", materias);
+
+      ctx.response.status = 200;
+      ctx.response.body = {
+        statusCode: 200,
+        intMessage: "Lista de materias",
+        data: materias,
+      };
+
+    } catch (error) {
+      ctx.response.status = 500;
+      ctx.response.body = {
+        statusCode: 500,
+        intMessage: "Error interno del servidor",
+        data: { message: error.message },
+      };
+    }
+  },
 }
