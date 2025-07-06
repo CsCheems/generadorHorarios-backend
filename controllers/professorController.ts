@@ -108,8 +108,7 @@ export const profesorController = {
                 last_login: "",
                 rol: "OPnlSKOdhPj5Xdm11gqf",
                 mfaActivo: false,
-                usuarioId: nuevoProfesor.id,
-                activationToken: token 
+                usuarioId: nuevoProfesor.id, 
             });
 
             ctx.response.status = 201;
