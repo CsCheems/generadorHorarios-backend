@@ -3,22 +3,22 @@ import { format } from "datefns";
 import { es } from "date-fns/locale";
 import process from "node:process";
 import { db } from "../config/firebase.ts";
-import {readJson} from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
 import { Context } from "@oak/oak";
 import { createJWT } from "../utils/jwt.ts";
 import nodemailer from "npm:nodemailer";
 import "https://deno.land/std@0.224.0/dotenv/load.ts";
+import { nanoid } from "npm:nanoid";
 
 
 export const profesorController = {
 
     registro: async (ctx: Context) => {
-        const { apellidoPaterno, apellidoMaterno, 
-            nombre, horasRestringidas, horasTrabajo, grupos, materiasAsignadas } = await ctx.request.body({type: "json"}).value;
+        const { apellidoPaterno, apellidoMaterno,
+            nombre, matricula, email, horasRestringidas, horasTrabajo, grupos, materiasAsignadas } = await ctx.request.body({type: "json"}).value;
             console.log("Datos recibidos:", { apellidoPaterno, apellidoMaterno, nombre, horasRestringidas, horasTrabajo, grupos, materiasAsignadas });
 
         //if(!apellidoPaterno || !apellidoMaterno || !nombres || !email || !matricula || !grupos || !horasRestringidas || !materiasAsignadas || !idAdmin){
-        if(!apellidoPaterno || !apellidoMaterno || !nombre || !horasRestringidas || !horasTrabajo){
+        if(!apellidoPaterno || !apellidoMaterno || !nombre || !horasRestringidas || !horasTrabajo ||  !email || !grupos || !materiasAsignadas){
             ctx.response.status = 400;
             ctx.response.body = {
                 statusCode: 400,
@@ -29,27 +29,26 @@ export const profesorController = {
         }
 
         try{
-            /*const professorQuery = await db.collection("profesores").where("email", "==", email).get();
+            const professorQuery = await db.collection("profesores").where("matricula", "==", matricula).get();
             if(!professorQuery.empty){
                 ctx.response.status = 409;
                 ctx.response.body = {
                     statusCode: 409,
                     intMessage: "Conflicto",
-                    data: { message: "El email ya esta en uso"},
+                    data: { message: "Esta matricula ya esta registrada"},
                 };
                 return;
-            }*/
+            }
 
-            /*const nuevoProfesor = await db.collection("profesores").add({
+            const nuevoProfesor = await db.collection("profesores").add({
                 apellidoPaterno, 
                 apellidoMaterno,
-                nombres,
-                email,
+                nombre,
                 matricula,
                 grupos,
                 horasRestringidas,
+                horasTrabajo,
                 materiasAsignadas,
-                idAdmin,
                 activo: false
             });
 
@@ -57,31 +56,52 @@ export const profesorController = {
 
             const token = await createJWT({ id: nuevoProfesor.id, tipo: "activacion" }, "1d");
 
+            const usuarioExistente = await db.collection("usuarios").where("email", "==", email).get();
+            if (!usuarioExistente.empty) {
+                ctx.response.status = 409;
+                ctx.response.body = {
+                    statusCode: 409,
+                    intMessage: "Conflicto",
+                    data: { message: "Este correo ya está en uso" },
+                };
+                return;
+            }
+
+            const usuarioGenerado = matricula;
+            const passwordPlano = nanoid(10);
+            const hashPassword = await hash(passwordPlano);
+
             const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: "warrido34@gmail.com",
-                pass: process.env.EMAIL_PASSWORD,
-            },
+                service: "gmail",
+                auth: {
+                    user: "warrido34@gmail.com",
+                    pass: process.env.EMAIL_PASSWORD,
+                },
             });
 
             const mailOptions = {
-            from: '"Plataforma Educativa" <warrido34@gmail.com>',
-            to: email,
-            subject: "Activación de cuenta de profesor",
-            html: `
-                <p>Hola ${nombres},</p>
-                <p>Gracias por registrarte. Para activar tu cuenta, haz clic en el siguiente enlace:</p>
-                <a href="https://tusitio.com/activar-cuenta?token=${token}">Activar cuenta</a>
-                <p>Si no solicitaste esto, puedes ignorar este mensaje.</p>
-            `,
+                from: '"Plataforma Educativa" <warrido34@gmail.com>',
+                to: email,
+                subject: "Activación de cuenta de profesor",
+                html: `
+                    <p>Hola ${nombre},</p>
+                    <p>Tu cuenta ha sido registrada en el sistema. Aquí están tus credenciales de acceso:</p>
+                    <ul>
+                        <li><strong>Usuario:</strong> ${usuarioGenerado}</li>
+                        <li><strong>Contraseña:</strong> ${passwordPlano}</li>
+                    </ul>
+                    <p>Por seguridad, te recomendamos cambiar tu contraseña después de iniciar sesión.</p>
+                    <p>Para activar tu cuenta, haz clic en el siguiente enlace:</p>
+                    <a href="https://tusitio.com/activar-cuenta?token=${token}">Activar cuenta</a>
+                    <p>Si no solicitaste esto, puedes ignorar este mensaje.</p>
+                `,
             };
 
             await transporter.sendMail(mailOptions);
 
             await db.collection("usuarios").add({
-                usuario: null,
-                password: null,
+                usuario: usuarioGenerado,
+                password: hashPassword,
                 email,
                 telefono: null,
                 fechaNacimiento: null,
@@ -90,20 +110,7 @@ export const profesorController = {
                 mfaActivo: false,
                 usuarioId: nuevoProfesor.id,
                 activationToken: token 
-            });*/
-
-            const nuevoProfesor = {
-                apellidoPaterno, 
-                apellidoMaterno,
-                nombre,
-                horasTrabajo: horasTrabajo || 0,
-                grupos: grupos || [],
-                horasRestringidas: horasRestringidas || [],
-                materiasAsignadas: materiasAsignadas || [],
-                activo: false
-            };
-            const profesorDoc = await db.collection("profesores").add(nuevoProfesor);
-            await profesorDoc.update({ idProfesor: profesorDoc.id });
+            });
 
             ctx.response.status = 201;
             ctx.response.body = {
