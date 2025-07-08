@@ -54,8 +54,6 @@ export const profesorController = {
 
             await nuevoProfesor.update({idProfesor: nuevoProfesor.id});
 
-            const token = await createJWT({ id: nuevoProfesor.id, tipo: "activacion" }, "1d");
-
             const usuarioExistente = await db.collection("usuarios").where("email", "==", email).get();
             if (!usuarioExistente.empty) {
                 ctx.response.status = 409;
@@ -67,16 +65,25 @@ export const profesorController = {
                 return;
             }
 
+             console.log("Email credentials:", {
+                user: Deno.env.get("EMAIL_USER"),
+                pass: Deno.env.get("EMAIL_PASS")?.length
+            });
+
             const usuarioGenerado = matricula;
             const passwordPlano = nanoid(10);
             const hashPassword = await hash(passwordPlano);
 
+           
+
             const transporter = nodemailer.createTransport({
-                service: "gmail",
+                host: "smtp.gmail.com",
+                port: 465, 
+                secure: true,
                 auth: {
-                    user: "warrido34@gmail.com",
-                    pass: process.env.EMAIL_PASSWORD,
-                },
+                    user: Deno.env.get("EMAIL_USER"),
+                    pass: Deno.env.get("EMAIL_PASS")
+                }
             });
 
             const mailOptions = {
@@ -91,9 +98,6 @@ export const profesorController = {
                         <li><strong>Contraseña:</strong> ${passwordPlano}</li>
                     </ul>
                     <p>Por seguridad, te recomendamos cambiar tu contraseña después de iniciar sesión.</p>
-                    <p>Para activar tu cuenta, haz clic en el siguiente enlace:</p>
-                    <a href="https://tusitio.com/activar-cuenta?token=${token}">Activar cuenta</a>
-                    <p>Si no solicitaste esto, puedes ignorar este mensaje.</p>
                 `,
             };
 
