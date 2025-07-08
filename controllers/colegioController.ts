@@ -9,79 +9,79 @@ import { ColegioData } from "../interfaces/i_colegio.ts";
 
 export const colegioController = {
 
-  registrar: async (ctx: Context) => {
-    const { claveColegio, nombreColegio, direccion, telefono, email } = await ctx.request.body({ type: "json" }).value;
-    console.log("Datos recibidos:", { claveColegio, nombreColegio, direccion, telefono, email });
-    if (!claveColegio || !nombreColegio || !direccion || !telefono || !email) {
-      ctx.response.status = 400;
-      ctx.response.body = {
-        statusCode: 400,
-        intMessage: "Datos incompletos",
-        data: { message: "Todos los campos son requeridos" },
-      };
-      return;
-    }
+  // registrar: async (ctx: Context) => {
+  //   const { claveColegio, nombreColegio, direccion, telefono, email } = await ctx.request.body({ type: "json" }).value;
+  //   console.log("Datos recibidos:", { claveColegio, nombreColegio, direccion, telefono, email });
+  //   if (!claveColegio || !nombreColegio || !direccion || !telefono || !email) {
+  //     ctx.response.status = 400;
+  //     ctx.response.body = {
+  //       statusCode: 400,
+  //       intMessage: "Datos incompletos",
+  //       data: { message: "Todos los campos son requeridos" },
+  //     };
+  //     return;
+  //   }
 
-    try {
-      const colegioQuery = await db.collection("colegios").where("email", "==", email).get();
-      if (!colegioQuery.empty) {
-        ctx.response.status = 409;
-        ctx.response.body = {
-          statusCode: 409,
-          intMessage: "Conflicto",
-          data: { message: "El email ya está en uso" },
-        };
-        return;
-      }
+  //   try {
+  //     const colegioQuery = await db.collection("colegios").where("email", "==", email).get();
+  //     if (!colegioQuery.empty) {
+  //       ctx.response.status = 409;
+  //       ctx.response.body = {
+  //         statusCode: 409,
+  //         intMessage: "Conflicto",
+  //         data: { message: "El email ya está en uso" },
+  //       };
+  //       return;
+  //     }
 
-      const nuevoColegio = await db.collection("colegios").add({
-        nombreColegio,
-        direccion,
-        telefono,
-        email,
-      });
+  //     const nuevoColegio = await db.collection("colegios").add({
+  //       nombreColegio,
+  //       direccion,
+  //       telefono,
+  //       email,
+  //     });
 
-      await nuevoColegio.update({ idColegio: nuevoColegio.id });
+  //     await nuevoColegio.update({ idColegio: nuevoColegio.id });
 
-      ctx.response.status = 201;
-      ctx.response.body = {
-        statusCode: 201,
-        intMessage: "Registro exitoso",
-        data: { idColegio: nuevoColegio.id },
-      };
+  //     ctx.response.status = 201;
+  //     ctx.response.body = {
+  //       statusCode: 201,
+  //       intMessage: "Registro exitoso",
+  //       data: { idColegio: nuevoColegio.id },
+  //     };
 
-    } catch (error) {
-      ctx.response.status = 500;
-      ctx.response.body = {
-        statusCode: 500,
-        intMessage: "Error interno del servidor",
-        data: { message: error.message },
-      };
-    }
-  },
+  //   } catch (error) {
+  //     ctx.response.status = 500;
+  //     ctx.response.body = {
+  //       statusCode: 500,
+  //       intMessage: "Error interno del servidor",
+  //       data: { message: error.message },
+  //     };
+  //   }
+  // },
 
-  listar: async (ctx: Context) => {
-    try {
-      const colegiosSnapshot = await db.collection("colegios").get();
-      const colegios = colegiosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      console.log("Colegios encontrados:", colegios);
+  // listar: async (ctx: Context) => {
+  //   try {
+  //     const colegiosSnapshot = await db.collection("colegios").get();
+  //     const colegios = colegiosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  //     console.log("Colegios encontrados:", colegios);
 
-      ctx.response.status = 200;
-      ctx.response.body = {
-        statusCode: 200,
-        intMessage: "Lista de colegios",
-        data: colegios,
-      };
+  //     ctx.response.status = 200;
+  //     ctx.response.body = {
+  //       statusCode: 200,
+  //       intMessage: "Lista de colegios",
+  //       data: colegios,
+  //     };
 
-    } catch (error) {
-      ctx.response.status = 500;
-      ctx.response.body = {
-        statusCode: 500,
-        intMessage: "Error interno del servidor",
-        data: { message: error.message },
-      };
-    }
-  },
+  //   } catch (error) {
+  //     ctx.response.status = 500;
+  //     ctx.response.body = {
+  //       statusCode: 500,
+  //       intMessage: "Error interno del servidor",
+  //       data: { message: error.message },
+  //     };
+  //   }
+  // },
 
   /*obtenerPorId: async (ctx: Context) => {
     const id = ctx.params.id;  
@@ -124,11 +124,13 @@ export const colegioController = {
     },*/
 
   registrarGrupo: async (ctx: Context) => {
-    const { nombreGrupo, nivel, grado, idColegio } = await ctx.request.body({ type: "json" }).value;
-    console.log("Datos recibidos para registrar grupo:", { nombreGrupo, nivel, grado, idColegio });
+    //const { nombreGrupo, nivel, grado, idColegi } = await ctx.request.body({ type: "json" }).value;
+    const { nombreGrupo, nivel, grado } = await ctx.request.body({ type: "json" }).value;
+    console.log("Datos recibidos para registrar grupo:", { nombreGrupo, nivel, grado });
 
 
-    if (!nombreGrupo || !nivel || !grado || !idColegio) {
+    //if (!nombreGrupo || !nivel || !grado || !idColegio) {
+    if (!nombreGrupo || !nivel || !grado) {
       ctx.response.status = 400;
       ctx.response.body = {
         statusCode: 400,
@@ -150,11 +152,17 @@ export const colegioController = {
         return;
       }*/
 
+      // const nuevoGrupo = await db.collection("grupos").add({
+      //   nombreGrupo,
+      //   nivel,
+      //   grado,
+      //   idColegio,
+      // });
+
       const nuevoGrupo = await db.collection("grupos").add({
         nombreGrupo,
         nivel,
         grado,
-        idColegio,
       });
 
       await nuevoGrupo.update({ idGrupo: nuevoGrupo.id });
@@ -171,42 +179,42 @@ export const colegioController = {
       ctx.response.body = {
         statusCode: 500,
         intMessage: "Error interno del servidor",
-        data: { message: error.message },
+        data: { message: "Error al registrar grupo"},
       };
     }
   },
 
-  gruposPorColegio: async (ctx: Context) => {
-    try {
-      const gruposSnapshot = await db.collection("grupos").get();
-      const grupos = gruposSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  // gruposPorColegio: async (ctx: Context) => {
+  //   try {
+  //     const gruposSnapshot = await db.collection("grupos").get();
+  //     const grupos = gruposSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      if (grupos.length === 0) {
-        ctx.response.status = 404;
-        ctx.response.body = {
-          statusCode: 404,
-          intMessage: "No se encontraron grupos",
-          data: { message: "No hay grupos registrados" },
-        };
-        return;
-      }
+  //     if (grupos.length === 0) {
+  //       ctx.response.status = 404;
+  //       ctx.response.body = {
+  //         statusCode: 404,
+  //         intMessage: "No se encontraron grupos",
+  //         data: { message: "No hay grupos registrados" },
+  //       };
+  //       return;
+  //     }
 
-      ctx.response.status = 200;
-      ctx.response.body = {
-        statusCode: 200,
-        intMessage: "Grupos encontrados",
-        data: grupos,
-      };
+  //     ctx.response.status = 200;
+  //     ctx.response.body = {
+  //       statusCode: 200,
+  //       intMessage: "Grupos encontrados",
+  //       data: grupos,
+  //     };
 
-    } catch (error) {
-      ctx.response.status = 500;
-      ctx.response.body = {
-        statusCode: 500,
-        intMessage: "Error interno del servidor",
-        data: { message: error.message },
-      };
-    }
-  },
+  //   } catch (error) {
+  //     ctx.response.status = 500;
+  //     ctx.response.body = {
+  //       statusCode: 500,
+  //       intMessage: "Error interno del servidor",
+  //       data: { message: error.message },
+  //     };
+  //   }
+  // },
 
   /*const colegioDoc = await db.collection("colegios").doc(idColegio).get();
       if (!colegioDoc.exists) {
@@ -254,7 +262,7 @@ export const colegioController = {
       ctx.response.body = {
         statusCode: 500,
         intMessage: "Error interno del servidor",
-        data: { message: error.message },
+        data: { message: "Error al registrar materias" },
       };
     }
   },
@@ -277,7 +285,7 @@ export const colegioController = {
       ctx.response.body = {
         statusCode: 500,
         intMessage: "Error interno del servidor",
-        data: { message: error.message },
+        data: { message: "Error al listar materias" },
       };
     }
   },
