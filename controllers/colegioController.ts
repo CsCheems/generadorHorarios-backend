@@ -211,7 +211,7 @@ export const colegioController = {
        ctx.response.body = {
        statusCode: 500,
         intMessage: "Error interno del servidor",
-        data: { message: error.message },
+        data: { message: "Error al listar grupos" },
        };
      }
    },
