@@ -124,11 +124,11 @@ export const colegioController = {
     },*/
 
   registrarGrupo: async (ctx: Context) => {
-    const { nombreGrupo, nivel, idColegio } = await ctx.request.body({ type: "json" }).value;
-    console.log("Datos recibidos para registrar grupo:", { nombreGrupo, nivel, idColegio });
+    const { nombreGrupo, nivel, grado, idColegio } = await ctx.request.body({ type: "json" }).value;
+    console.log("Datos recibidos para registrar grupo:", { nombreGrupo, nivel, grado, idColegio });
 
 
-    if (!nombreGrupo || !nivel || !idColegio) {
+    if (!nombreGrupo || !nivel || !grado || !idColegio) {
       ctx.response.status = 400;
       ctx.response.body = {
         statusCode: 400,
@@ -139,7 +139,7 @@ export const colegioController = {
     }
 
     try {
-      const colegioDoc = await db.collection("colegios").doc(idColegio).get();
+      /*const colegioDoc = await db.collection("colegios").doc(idColegio).get();
       if (!colegioDoc.exists) {
         ctx.response.status = 404;
         ctx.response.body = {
@@ -148,11 +148,12 @@ export const colegioController = {
           data: { message: "No se encontró un colegio con ese ID" },
         };
         return;
-      }
+      }*/
 
       const nuevoGrupo = await db.collection("grupos").add({
         nombreGrupo,
         nivel,
+        grado,
         idColegio,
       });
 
@@ -175,22 +176,9 @@ export const colegioController = {
     }
   },
 
-  /*gruposPorColegio: async (ctx: Context) => {
-    const idColegio = ctx.params.id;
-    console.log("ID del colegio recibido:", idColegio);
-
-    if (!idColegio) {
-      ctx.response.status = 400;
-      ctx.response.body = {
-        statusCode: 400,
-        intMessage: "ID requerido",
-        data: { message: "El ID del colegio es requerido" },
-      };
-      return;
-    }
-
+  gruposPorColegio: async (ctx: Context) => {
     try {
-      const gruposSnapshot = await db.collection("grupos").where("idColegio", "==", idColegio).get();
+      const gruposSnapshot = await db.collection("grupos").get();
       const grupos = gruposSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
       if (grupos.length === 0) {
@@ -198,7 +186,7 @@ export const colegioController = {
         ctx.response.body = {
           statusCode: 404,
           intMessage: "No se encontraron grupos",
-          data: { message: "No se encontraron grupos para este colegio" },
+          data: { message: "No hay grupos registrados" },
         };
         return;
       }
@@ -218,7 +206,7 @@ export const colegioController = {
         data: { message: error.message },
       };
     }
-  },*/
+  },
 
   /*const colegioDoc = await db.collection("colegios").doc(idColegio).get();
       if (!colegioDoc.exists) {

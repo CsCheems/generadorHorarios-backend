@@ -22,7 +22,7 @@ router.get("/colegio/listar", colegioController.listar);
 
 router.post("/colegio/registrarGrupo", colegioController.registrarGrupo);
 
-//router.get("/colegio/gruposPorColegio", colegioController.gruposPorColegio);
+router.get("/colegio/gruposPorColegio", colegioController.gruposPorColegio);
 
 router.post("/colegio/materiaRegistrar", colegioController.materiaRegistrar);
 
