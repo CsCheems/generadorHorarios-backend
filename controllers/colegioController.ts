@@ -184,37 +184,37 @@ export const colegioController = {
     }
   },
 
-  // gruposPorColegio: async (ctx: Context) => {
-  //   try {
-  //     const gruposSnapshot = await db.collection("grupos").get();
-  //     const grupos = gruposSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+   gruposLista: async (ctx: Context) => {
+    try {
+      const gruposSnapshot = await db.collection("grupos").get();
+      const grupos = gruposSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-  //     if (grupos.length === 0) {
-  //       ctx.response.status = 404;
-  //       ctx.response.body = {
-  //         statusCode: 404,
-  //         intMessage: "No se encontraron grupos",
-  //         data: { message: "No hay grupos registrados" },
-  //       };
-  //       return;
-  //     }
+      if (grupos.length === 0) {
+        ctx.response.status = 404;
+         ctx.response.body = {
+          statusCode: 404,
+           intMessage: "No se encontraron grupos",
+           data: { message: "No hay grupos registrados" },
+         };
+         return;
+       }
 
-  //     ctx.response.status = 200;
-  //     ctx.response.body = {
-  //       statusCode: 200,
-  //       intMessage: "Grupos encontrados",
-  //       data: grupos,
-  //     };
+       ctx.response.status = 200;
+       ctx.response.body = {
+         statusCode: 200,
+         intMessage: "Grupos encontrados",
+         data: grupos,
+       };
 
-  //   } catch (error) {
-  //     ctx.response.status = 500;
-  //     ctx.response.body = {
-  //       statusCode: 500,
-  //       intMessage: "Error interno del servidor",
-  //       data: { message: error.message },
-  //     };
-  //   }
-  // },
+     } catch (error) {
+       ctx.response.status = 500;
+       ctx.response.body = {
+       statusCode: 500,
+        intMessage: "Error interno del servidor",
+        data: { message: error.message },
+       };
+     }
+   },
 
   /*const colegioDoc = await db.collection("colegios").doc(idColegio).get();
       if (!colegioDoc.exists) {

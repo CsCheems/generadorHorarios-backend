@@ -14,15 +14,15 @@ router.post("/auth/login", authController.login);
 
 //colegio
 
-// router.post("/colegio/registrar", colegioController.registrar);
+//router.post("/colegio/registrar", colegioController.registrar);
 
-// router.get("/colegio/listar", colegioController.listar);
+//router.get("/colegio/listar", colegioController.listar);
 
 //router.get("/colegio/:id", colegioController.obtenerPorId);
 
 router.post("/colegio/registrarGrupo", colegioController.registrarGrupo);
 
-// router.get("/colegio/gruposPorColegio", colegioController.gruposPorColegio);
+router.get("/colegio/gruposLista", colegioController.gruposLista);
 
 router.post("/colegio/materiaRegistrar", colegioController.materiaRegistrar);
 
