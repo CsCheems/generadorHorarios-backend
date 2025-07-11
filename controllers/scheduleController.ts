@@ -12,12 +12,10 @@ export const scheduleController = {
     try {
       const { idGrupo } = await ctx.request.body({ type: "json" }).value;
 
-      // 1. Obtener documento del grupo
       const grupoDoc = await db.collection("grupos").doc(idGrupo).get();
       if (!grupoDoc.exists) ctx.throw(404, "Grupo no encontrado");
       const grupo: Grupo = mapearGrupo({ idGrupo, ...grupoDoc.data() });
 
-      // 2. Obtener materias del mismo nivel y grado
       const materiasSnap = await db.collection("materias").get();
       const materias: Materia[] = [];
       materiasSnap.forEach((docSnap) => {
@@ -36,7 +34,6 @@ export const scheduleController = {
         }
       });
 
-      // 3. Obtener profesores asignados al grupo
       const profesoresSnap = await db.collection("profesores").get();
       const profesores: Profesor[] = [];
       profesoresSnap.forEach((docSnap) => {
@@ -46,10 +43,15 @@ export const scheduleController = {
         }
       });
 
-      // 4. Generar horario
+
       const horario: Horario = generarHorario(grupo, materias, profesores);
 
-      // 5. Responder
+      await db.collection("horarios").doc(grupo.id).set({
+        grupo: `${grupo.grado.toUpperCase()}${grupo.nombre}`,
+        horario,
+        generadoEn: new Date().toISOString()
+      });
+
       ctx.response.status = 200;
       ctx.response.body = {
         grupo: `${grupo.grado.toUpperCase()}${grupo.nombre}`,
