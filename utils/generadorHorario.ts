@@ -16,7 +16,7 @@ export function generarHorario(
         horario[dia] = Array(HORAS.length).fill(null);
     }
 
-    const grupoNombre = `${grupo.grado.replace("do", "")}${grupo.nombre}`; // ej. "2B"
+    const grupoNombre = `${grupo.grado}${grupo.nombre}`;
     const materiasDelGrupo = materias.filter(
         (m) =>
         m.nivel.toLowerCase() === grupo.nivel.toLowerCase() &&

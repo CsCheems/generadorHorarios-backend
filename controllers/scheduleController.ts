@@ -5,7 +5,7 @@ import { Horario } from '../interfaces/i_horario.ts';
 import { Context } from "@oak/oak";
 import { mapearProfesor, mapearGrupo } from '../utils/utils.ts';
 import { generarHorario } from '../utils/generadorHorario.ts';
-import { db } from "../config/firebase.ts"; // Usa el admin SDK de Deno
+import { db } from "../config/firebase.ts";
 
 export const scheduleController = {
   generarHorario: async (ctx: Context) => {
@@ -42,7 +42,6 @@ export const scheduleController = {
           profesores.push(mapearProfesor(data));
         }
       });
-
 
       const horario: Horario = generarHorario(grupo, materias, profesores);
 
