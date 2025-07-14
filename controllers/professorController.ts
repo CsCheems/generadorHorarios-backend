@@ -39,7 +39,6 @@ export const profesorController = {
                 };
                 return;
             }
-
             const nuevoProfesor = await db.collection("profesores").add({
                 apellidoPaterno, 
                 apellidoMaterno,
@@ -211,7 +210,7 @@ export const profesorController = {
         try {
             const profesoresSnapshot = await db.collection("profesores").get();
             const profesores = profesoresSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            console.log("Profesores encontrados:", profesores);
+            //console.log("Profesores encontrados:", profesores);
 
             if (profesores.length === 0) {
                 ctx.response.status = 404;
@@ -244,7 +243,7 @@ export const profesorController = {
     asignacion: async (ctx: Context) => {
 
         const { idProfesor, materias } = await ctx.request.body({ type: "json" }).value;
-        console.log("Datos recibidos para asignación:", { idProfesor, materias });
+        //console.log("Datos recibidos para asignación:", { idProfesor, materias });
 
         if (!idProfesor || !materias || !Array.isArray(materias)) {
             ctx.response.status = 400;
