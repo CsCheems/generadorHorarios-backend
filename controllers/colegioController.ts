@@ -229,7 +229,7 @@ export const colegioController = {
 
   materiaRegistrar: async (ctx: Context) => {
     const { nombreMateria, horasSemanales, nivel, grado } = await ctx.request.body({ type: "json" }).value;
-    console.log("Datos recibidos para registrar materia:", { nombreMateria, horasSemanales, nivel, grado });
+    //console.log("Datos recibidos para registrar materia:", { nombreMateria, horasSemanales, nivel, grado });
     if (!nombreMateria || !horasSemanales || !nivel || !grado) {
       ctx.response.status = 400;
       ctx.response.body = {
@@ -271,7 +271,7 @@ export const colegioController = {
     try {
       const materiasSnapshot = await db.collection("materias").get();
       const materias = materiasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      console.log("Materias encontradas:", materias);
+      //console.log("Materias encontradas:", materias);
 
       ctx.response.status = 200;
       ctx.response.body = {
