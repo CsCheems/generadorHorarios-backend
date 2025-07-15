@@ -16,7 +16,6 @@ export function generarHorario(
         horario[dia] = Array(HORAS.length).fill(null);
     }
 
-    const grupoNombre = `${grupo.grado}${grupo.nombre}`;
     const materiasDelGrupo = materias.filter(
         (m) =>
         m.nivel.toLowerCase() === grupo.nivel.toLowerCase() &&
@@ -29,7 +28,7 @@ export function generarHorario(
         let horasPendientes = materia.horas;
         const profesoresAsignados = profesores.filter(
         (p) =>
-            p.materias.includes(materia.nombre) && p.grupos.includes(grupoNombre)
+            p.materias.includes(materia.id) && p.grupos.includes(grupo.id)
         );
 
         while (horasPendientes > 0) {
@@ -37,10 +36,9 @@ export function generarHorario(
         const horaIndex = Math.floor(Math.random() * HORAS.length);
         const hora = HORAS[horaIndex];
 
-        if (horario[dia][horaIndex]) continue; // ya hay algo
+        if (horario[dia][horaIndex]) continue;
 
         const profesorDisponible = profesoresAsignados.find((p) => {
-            if (!p.horasDisponibles.includes(hora)) return false;
             if (p.horasNoDisponibles.includes(hora)) return false;
             const clasesHoy = conteoProfesorDia[p.id]?.[dia] || 0;
             return clasesHoy < 2;
@@ -48,7 +46,7 @@ export function generarHorario(
 
         if (!profesorDisponible) continue;
 
-        horario[dia][horaIndex] = materia.nombre;
+        horario[dia][horaIndex] = materia.id;
 
         if (!conteoProfesorDia[profesorDisponible.id]) {
             conteoProfesorDia[profesorDisponible.id] = {};

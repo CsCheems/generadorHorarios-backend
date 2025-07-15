@@ -17,7 +17,7 @@ export function mapearProfesor(doc: any): Profesor {
         materias: doc.materiasAsignadas,
         grupos: doc.grupos,
         horasNoDisponibles: doc.horasRestringidas.map(normalizarHora),
-        horasDisponibles: doc.horasTrabajo.map(normalizarHora)
+        niveles: doc.niveles
     };
 }
 
@@ -29,3 +29,4 @@ export function mapearGrupo(doc: any): Grupo {
         nombre: doc.nombreGrupo.toUpperCase() 
     };
 }
+
