@@ -10,8 +10,9 @@ const HORA_RECESO = 11;
 export function generarHorario(
     grupo: Grupo,
     materias: Materia[],
-    profesores: Profesor[]
-    ): Horario {
+    profesores: Profesor[],
+    horariosExistentes: Record<string, Horario> = {}
+): Horario {
     const horario: Horario = {};
     for (const dia of DIAS) {
         horario[dia] = HORAS.map((hora) => (hora === HORA_RECESO ? "RECESO" : null));
@@ -19,8 +20,8 @@ export function generarHorario(
 
     const materiasDelGrupo = materias.filter(
         (m) =>
-        m.nivel.toLowerCase() === grupo.nivel.toLowerCase() &&
-        m.grado.toLowerCase() === grupo.grado.toLowerCase()
+            m.nivel.toLowerCase() === grupo.nivel.toLowerCase() &&
+            m.grado.toLowerCase() === grupo.grado.toLowerCase()
     );
     console.log("📚 Materias del grupo para asignar:", materiasDelGrupo.map(m => `${m.nombre} (${m.horas}h)`));
 
@@ -41,59 +42,79 @@ export function generarHorario(
         let intentos = 0;
 
         while (horasPendientes > 0 && intentos < 1000) {
-        intentos++;
-        const dia = DIAS[Math.floor(Math.random() * DIAS.length)];
-        const horaIndex = Math.floor(Math.random() * HORAS.length);
-        const hora = HORAS[horaIndex];
+            intentos++;
+            const dia = DIAS[Math.floor(Math.random() * DIAS.length)];
+            const horaIndex = Math.floor(Math.random() * HORAS.length);
+            const hora = HORAS[horaIndex];
 
-        if (hora === HORA_RECESO) {
-            console.log(`⏩ ${hora}:00 es hora de RECESO, se omite`);
-            continue;
-        }
-
-        if (horario[dia][horaIndex]) {
-            console.log(`⏩ ${dia} ${hora}:00 ya está ocupado (${horario[dia][horaIndex]})`);
-            continue;
-        }
-
-        const profesorDisponible = profesoresAsignados.find((p) => {
-            if (p.horasNoDisponibles.includes(hora)) {
-            console.log(`⛔ ${p.nombre} no disponible a las ${hora}:00`);
-            return false;
+            if (hora === HORA_RECESO) {
+                console.log(`⏩ ${hora}:00 es hora de RECESO, se omite`);
+                continue;
             }
-            const clasesHoy = conteoProfesorDia[p.id]?.[dia] || 0;
-            if (clasesHoy >= 2) {
-            console.log(`⚠️ ${p.nombre} ya tiene 2 clases el ${dia}`);
-            return false;
+
+            const celda = horario[dia][horaIndex];
+            const descripcion = (typeof celda === "object" && celda !== null)
+                ? celda.materiaNombre
+                : celda;
+
+            if (horario[dia][horaIndex]) {
+                console.log(`⏩ ${dia} ${hora}:00 ya está ocupado (${descripcion})`);
+                continue;
             }
-            return true;
-        });
 
-        if (!profesorDisponible) {
-            console.log(`❌ Ningún profesor disponible para ${materia.nombre} el ${dia} a las ${hora}:00`);
-            continue;
-        }
+            // Buscar profesor disponible sin conflicto con otros grupos
+            let profesorDisponible: Profesor | undefined;
 
-        horario[dia][horaIndex] = {
-            materiaId: materia.id,
-            materiaNombre: materia.nombre,
-            profesorId: profesorDisponible.id,
-            profesorNombre: profesorDisponible.nombre
-        };
+            for (const p of profesoresAsignados) {
+                if (p.horasNoDisponibles.includes(hora)) {
+                    console.log(`⛔ ${p.nombre} no disponible a las ${hora}:00`);
+                    continue;
+                }
 
-        if (!conteoProfesorDia[profesorDisponible.id]) {
-            conteoProfesorDia[profesorDisponible.id] = {};
-        }
+                const clasesHoy = conteoProfesorDia[p.id]?.[dia] || 0;
+                if (clasesHoy >= 2) {
+                    console.log(`⚠️ ${p.nombre} ya tiene 2 clases el ${dia}`);
+                    continue;
+                }
 
-        conteoProfesorDia[profesorDisponible.id][dia] =
-            (conteoProfesorDia[profesorDisponible.id][dia] || 0) + 1;
+                const conflicto = Object.values(horariosExistentes).some((horarioOtroGrupo) => {
+                    const entrada = horarioOtroGrupo[dia]?.[horaIndex];
+                    return entrada && typeof entrada === "object" && entrada.profesorId === p.id;
+                });
 
-        console.log(`✅ ${materia.nombre} asignada el ${dia} a las ${hora}:00 con ${profesorDisponible.nombre}`);
-        horasPendientes--;
+                if (conflicto) {
+                    console.log(`🚫 ${p.nombre} ya está asignado en otro grupo el ${dia} a las ${hora}:00`);
+                    continue;
+                }
+
+                profesorDisponible = p;
+                break;
+            }
+
+
+            if (!profesorDisponible) {
+                console.log(`❌ Ningún profesor disponible para ${materia.nombre} el ${dia} a las ${hora}:00`);
+                continue;
+            }
+
+            horario[dia][horaIndex] = {
+                materiaId: materia.id,
+                materiaNombre: materia.nombre,
+                profesorId: profesorDisponible.id,
+                profesorNombre: profesorDisponible.nombre,
+            };
+
+            if (!conteoProfesorDia[profesorDisponible.id]) {
+                conteoProfesorDia[profesorDisponible.id] = {};
+            }
+            conteoProfesorDia[profesorDisponible.id][dia] = (conteoProfesorDia[profesorDisponible.id][dia] || 0) + 1;
+
+            console.log(`✅ ${materia.nombre} asignada el ${dia} a las ${hora}:00 con ${profesorDisponible.nombre}`);
+            horasPendientes--;
         }
 
         if (horasPendientes > 0) {
-        console.warn(`⚠️ No se pudieron asignar ${horasPendientes} horas de ${materia.nombre}`);
+            console.warn(`⚠️ No se pudieron asignar ${horasPendientes} horas de ${materia.nombre}`);
         }
     }
 

@@ -56,9 +56,34 @@ export const scheduleController = {
       });
       console.log(`👨‍🏫 Profesores que imparten al menos una materia del grupo (${profesores.length}):`, profesores.map(p => p.nombre));
 
-      // Generar horario
+      // Obtener otros grupos del mismo nivel y grado
+      const gruposSnap = await db.collection("grupos").get();
+      const gruposMismoNivelYGrado: string[] = [];
+      gruposSnap.forEach((doc) => {
+        const data = doc.data();
+        if (
+          data.nivel.toLowerCase() === grupo.nivel.toLowerCase() &&
+          data.grado.toLowerCase() === grupo.grado.toLowerCase() &&
+          doc.id !== grupo.id
+        ) {
+          gruposMismoNivelYGrado.push(doc.id);
+        }
+      });
+
+      // Obtener horarios existentes de esos grupos
+      const horariosExistentes: Record<string, Horario> = {};
+      for (const id of gruposMismoNivelYGrado) {
+        const horarioDoc = await db.collection("horarios").doc(id).get();
+        if (horarioDoc.exists && horarioDoc.data()?.horario) {
+          horariosExistentes[id] = horarioDoc.data()!.horario;
+        }
+      }
+      console.log(`📅 Horarios existentes de otros grupos del mismo grado y nivel:`, Object.keys(horariosExistentes));
+
+
+      // Generar horario, pasando horarios existentes para evitar conflictos
       console.log("🧩 Generando horario...");
-      const horario: Horario = generarHorario(grupo, materias, profesores);
+      const horario: Horario = generarHorario(grupo, materias, profesores, horariosExistentes);
       console.log("📆 Horario generado con éxito:");
       for (const dia in horario) {
         console.log(`📅 ${dia}:`, horario[dia]);
@@ -66,7 +91,7 @@ export const scheduleController = {
 
       // Guardar en base de datos
       await db.collection("horarios").doc(grupo.id).set({
-        grupo: `${grupo.grado.toUpperCase()}${grupo.nombre}`,
+        grupo: `${grupo.grado.toUpperCase()} ${grupo.nombre}`,
         horario,
         generadoEn: new Date().toISOString()
       });
@@ -75,7 +100,7 @@ export const scheduleController = {
       // Respuesta
       ctx.response.status = 200;
       ctx.response.body = {
-        grupo: `${grupo.grado.toUpperCase()}${grupo.nombre}`,
+        grupo: `${grupo.grado.toUpperCase()} ${grupo.nombre}`,
         horario,
       };
       console.log("✅ Respuesta enviada al cliente.");
