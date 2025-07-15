@@ -43,4 +43,6 @@ router.post("/profesor/asignacion", profesorController.asignacion);
 
 router.post("/horario/crear", scheduleController.generarHorario);
 
+router.get("/horario/listar", scheduleController.listarHorarios);
+
 export const ruta = router;

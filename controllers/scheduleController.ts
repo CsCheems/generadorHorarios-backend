@@ -14,7 +14,6 @@ export const scheduleController = {
       const { grupoId } = await ctx.request.body({ type: "json" }).value;
       console.log("✅ ID del grupo recibido:", grupoId);
 
-      // Obtener grupo
       const grupoDoc = await db.collection("grupos").doc(grupoId).get();
       if (!grupoDoc.exists) {
         console.warn("⚠️ Grupo no encontrado:", grupoId);
@@ -23,7 +22,6 @@ export const scheduleController = {
       const grupo: Grupo = mapearGrupo({ grupoId, ...grupoDoc.data() });
       console.log("🏫 Grupo obtenido:", grupo);
 
-      // Obtener materias del grupo
       const materiasSnap = await db.collection("materias").get();
       const materias: Materia[] = [];
       materiasSnap.forEach((docSnap) => {
@@ -42,8 +40,6 @@ export const scheduleController = {
         }
       });
       console.log(`📚 Materias filtradas para el grupo (${materias.length}):`, materias.map(m => `${m.nombre} (${m.horas}h)`));
-
-      // Obtener profesores que imparten al menos una de las materias del grupo
       const idsMateriasDelGrupo = materias.map((m) => m.id);
 
       const profesoresSnap = await db.collection("profesores").get();
@@ -56,7 +52,6 @@ export const scheduleController = {
       });
       console.log(`👨‍🏫 Profesores que imparten al menos una materia del grupo (${profesores.length}):`, profesores.map(p => p.nombre));
 
-      // Obtener otros grupos del mismo nivel y grado
       const gruposSnap = await db.collection("grupos").get();
       const gruposMismoNivelYGrado: string[] = [];
       gruposSnap.forEach((doc) => {
@@ -70,7 +65,6 @@ export const scheduleController = {
         }
       });
 
-      // Obtener horarios existentes de esos grupos
       const horariosExistentes: Record<string, Horario> = {};
       for (const id of gruposMismoNivelYGrado) {
         const horarioDoc = await db.collection("horarios").doc(id).get();
@@ -80,8 +74,6 @@ export const scheduleController = {
       }
       console.log(`📅 Horarios existentes de otros grupos del mismo grado y nivel:`, Object.keys(horariosExistentes));
 
-
-      // Generar horario, pasando horarios existentes para evitar conflictos
       console.log("🧩 Generando horario...");
       const horario: Horario = generarHorario(grupo, materias, profesores, horariosExistentes);
       console.log("📆 Horario generado con éxito:");
@@ -89,15 +81,16 @@ export const scheduleController = {
         console.log(`📅 ${dia}:`, horario[dia]);
       }
 
-      // Guardar en base de datos
-      await db.collection("horarios").doc(grupo.id).set({
+      const horarioGenerado = await db.collection("horarios").doc(grupo.id).set({
         grupo: `${grupo.grado.toUpperCase()} ${grupo.nombre}`,
+        horarioGrupoId: grupo.id,
         horario,
-        generadoEn: new Date().toISOString()
+        Creado: new Date().toISOString(), 
+        
       });
+
       console.log("💾 Horario guardado en Firebase con éxito.");
 
-      // Respuesta
       ctx.response.status = 200;
       ctx.response.body = {
         grupo: `${grupo.grado.toUpperCase()} ${grupo.nombre}`,
@@ -109,4 +102,36 @@ export const scheduleController = {
       ctx.throw(500, "Error generando el horario");
     }
   },
+
+  listarHorarios: async(ctx: Context) => {
+     try {
+      const horariosSnapshot = await db.collection("horarios").get();
+      const horarios = horariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      if (horarios.length === 0) {
+        ctx.response.status = 404;
+         ctx.response.body = {
+          statusCode: 404,
+           intMessage: "No se encontraron horarios",
+           data: { message: "No hay horarios registrados" },
+         };
+         return;
+       }
+
+       ctx.response.status = 200;
+       ctx.response.body = {
+         statusCode: 200,
+         intMessage: "Horarios encontrados",
+         data: horarios,
+       };
+
+     } catch (error) {
+       ctx.response.status = 500;
+       ctx.response.body = {
+       statusCode: 500,
+        intMessage: "Error interno del servidor",
+        data: { message: "Error al listar horarios" },
+       };
+     }
+   },
 };
