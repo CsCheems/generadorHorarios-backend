@@ -6,7 +6,7 @@ import { db } from "../config/firebase.ts";
 import { Context } from "@oak/oak";
 import { createJWT } from "../utils/jwt.ts";
 import nodemailer from "npm:nodemailer";
-import "https://deno.land/std@0.224.0/dotenv/load.ts";
+import "https://deno.land/x/dotenv/load.ts";
 import { nanoid } from "npm:nanoid";
 
 
@@ -14,11 +14,11 @@ export const profesorController = {
 
     registro: async (ctx: Context) => {
         const { apellidoPaterno, apellidoMaterno,
-            nombre, matricula, email, horasRestringidas, horasTrabajo, grupos, materiasAsignadas } = await ctx.request.body({type: "json"}).value;
-            console.log("Datos recibidos:", { apellidoPaterno, apellidoMaterno, nombre, horasRestringidas, horasTrabajo, grupos, materiasAsignadas });
+            nombre, matricula, email, horasRestringidas, horasTrabajo, materiasAsignadas } = await ctx.request.body({type: "json"}).value;
+            console.log("Datos recibidos:", { apellidoPaterno, apellidoMaterno, nombre, email, horasRestringidas, horasTrabajo, materiasAsignadas });
 
         //if(!apellidoPaterno || !apellidoMaterno || !nombres || !email || !matricula || !grupos || !horasRestringidas || !materiasAsignadas || !idAdmin){
-        if(!apellidoPaterno || !apellidoMaterno || !nombre || !horasRestringidas || !horasTrabajo ||  !email || !grupos || !materiasAsignadas){
+        if(!apellidoPaterno || !apellidoMaterno || !nombre || !horasRestringidas || !horasTrabajo ||  !email || !materiasAsignadas){
             ctx.response.status = 400;
             ctx.response.body = {
                 statusCode: 400,
@@ -44,7 +44,6 @@ export const profesorController = {
                 apellidoMaterno,
                 nombre,
                 matricula,
-                grupos,
                 horasRestringidas,
                 horasTrabajo,
                 materiasAsignadas,
