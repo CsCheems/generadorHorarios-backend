@@ -228,8 +228,8 @@ export const colegioController = {
       }*/
 
   materiaRegistrar: async (ctx: Context) => {
-    const { nombreMateria, horas } = await ctx.request.body({ type: "json" }).value;
-    console.log("Datos recibidos para registrar materia:", { nombreMateria, horas });
+    const { nombreMateria, horas, nivel, grado } = await ctx.request.body({ type: "json" }).value;
+    console.log("Datos recibidos para registrar materia:", { nombreMateria, horas, nivel, grado });
     if (!nombreMateria || !horas) {
       ctx.response.status = 400;
       ctx.response.body = {
@@ -244,6 +244,8 @@ export const colegioController = {
       const nuevaMateria = await db.collection("materias").add({
         nombreMateria,
         horas,
+        nivel,
+        grado
       });
 
       await nuevaMateria.update({ idMateria: nuevaMateria.id });

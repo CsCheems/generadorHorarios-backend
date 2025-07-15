@@ -5,6 +5,7 @@ import { Horario } from '../interfaces/i_horario.ts';
 
 const DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes"];
 const HORAS = [8, 9, 10, 11, 12, 13, 14];
+const HORA_RECESO = 11;
 
 export function generarHorario(
     grupo: Grupo,
@@ -13,7 +14,7 @@ export function generarHorario(
     ): Horario {
     const horario: Horario = {};
     for (const dia of DIAS) {
-        horario[dia] = Array(HORAS.length).fill(null);
+        horario[dia] = HORAS.map((hora) => (hora === HORA_RECESO ? "RECESO" : null));
     }
 
     const materiasDelGrupo = materias.filter(
