@@ -2,6 +2,7 @@ import { Router } from "@oak/oak";
 import { authController } from "../controllers/authControllers.ts";
 import { colegioController } from "../controllers/colegioController.ts";
 import { profesorController } from "../controllers/professorController.ts";
+import { scheduleController } from "../controllers/scheduleController.ts";
 
 const router = new Router();
 
@@ -39,5 +40,7 @@ router.post("/profesor/registrar", profesorController.registro);
 router.get("/profesor/listar", profesorController.listar);
 
 router.post("/profesor/asignacion", profesorController.asignacion);
+
+router.post("/horario/crear", scheduleController.generarHorario);
 
 export const ruta = router;

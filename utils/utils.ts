@@ -16,8 +16,9 @@ export function mapearProfesor(doc: any): Profesor {
         nombre: `${doc.nombre} ${doc.apellidoPaterno} ${doc.apellidoMaterno}`,
         materias: doc.materiasAsignadas,
         grupos: doc.grupos,
-        horasNoDisponibles: doc.horasRestringidas.map(normalizarHora),
-        niveles: doc.niveles
+        horasNoDisponibles: Array.isArray(doc.horasRestringidas)
+        ? doc.horasRestringidas.map(normalizarHora)
+        : [],
     };
 }
 
