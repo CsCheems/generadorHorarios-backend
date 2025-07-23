@@ -4,8 +4,8 @@ import { Materia } from '../interfaces/i_materia.ts';
 import { Horario } from '../interfaces/i_horario.ts';
 
 const DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes"];
-const HORAS = [8, 9, 10, 11, 12, 13, 14];
-const HORA_RECESO = 11;
+const HORAS = ["7:20", "8:10", "9:00", "9:50", "10:00", "10:50", "11:40", "12:05", "12:55", "13:45"];
+const HORA_RECESO = ["9:50", "12:05"];
 
 export function generarHorario(
     grupo: Grupo,
@@ -15,7 +15,7 @@ export function generarHorario(
 ): Horario {
     const horario: Horario = {};
     for (const dia of DIAS) {
-        horario[dia] = HORAS.map((hora) => (hora === HORA_RECESO ? "RECESO" : null));
+        horario[dia] = HORAS.map((hora) => (HORA_RECESO.includes(hora) ? "RECESO" : null));
     }
 
     const materiasDelGrupo = materias.filter(
@@ -40,14 +40,15 @@ export function generarHorario(
         console.log(`👨‍🏫 Profesores disponibles para ${materia.nombre}:`, profesoresAsignados.map(p => p.nombre));
 
         let intentos = 0;
+        const maxIntentos = horasPendientes * 100;
 
-        while (horasPendientes > 0 && intentos < 1000) {
+        while (horasPendientes > 0 && intentos < maxIntentos) {
             intentos++;
             const dia = DIAS[Math.floor(Math.random() * DIAS.length)];
             const horaIndex = Math.floor(Math.random() * HORAS.length);
             const hora = HORAS[horaIndex];
 
-            if (hora === HORA_RECESO) {
+            if (HORA_RECESO.includes(hora)) {
                 console.log(`⏩ ${hora}:00 es hora de RECESO, se omite`);
                 continue;
             }
@@ -67,7 +68,7 @@ export function generarHorario(
 
             for (const p of profesoresAsignados) {
                 if (p.horasNoDisponibles.includes(hora)) {
-                    console.log(`⛔ ${p.nombre} no disponible a las ${hora}:00`);
+                    console.log(`⛔ ${p.nombre} no disponible a las ${hora}`);
                     continue;
                 }
 
