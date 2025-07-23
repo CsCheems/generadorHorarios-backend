@@ -3,5 +3,5 @@ export interface Profesor{
     nombre: string;
     materias: string[];
     grupos: string[];
-    horasNoDisponibles: number[];
+    horasNoDisponibles: string[];
 }
