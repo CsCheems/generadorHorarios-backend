@@ -3,6 +3,7 @@ import { authController } from "../controllers/authControllers.ts";
 import { colegioController } from "../controllers/colegioController.ts";
 import { profesorController } from "../controllers/professorController.ts";
 import { scheduleController } from "../controllers/scheduleController.ts";
+import { authMiddleware } from "../middlewares/authMiddleware.ts";
 
 const router = new Router();
 
@@ -44,5 +45,8 @@ router.post("/profesor/asignacion", profesorController.asignacion);
 router.post("/horario/crear", scheduleController.generarHorario);
 
 router.get("/horario/listar", scheduleController.listarHorarios);
+
+router.get("/horario/profesor", authMiddleware, scheduleController.listarHorarioPorProfesor);
+
 
 export const ruta = router;

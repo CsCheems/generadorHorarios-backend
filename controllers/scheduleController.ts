@@ -134,4 +134,69 @@ export const scheduleController = {
        };
      }
    },
+
+   listarHorarioPorProfesor: async (ctx: Context) => {
+    try {
+      const profesorId = ctx.state.user?.id;
+      if (!profesorId) {
+        ctx.throw(401, "No autorizado. Token inválido.");
+      }
+
+      // Obtener todos los horarios
+      const horariosSnap = await db.collection("horarios").get();
+      const horariosFiltrados = [];
+
+      horariosSnap.forEach((doc) => {
+        const data = doc.data();
+        const horario: Horario = data.horario;
+
+        const horarioFiltrado: Horario = {};
+
+        for (const dia in horario) {
+          const bloques = horario[dia];
+
+          // Filtrar solo los bloques donde el profesor esté asignado
+          const bloquesDelProfesor = bloques.map((bloque) => {
+            if (
+              bloque &&
+              bloque !== "RECESO" &&
+              bloque.profesorId === profesorId
+            ) {
+              return bloque;
+            }
+            return null;
+          }).filter((b) => b !== null); // Eliminar nulos
+
+          if (bloquesDelProfesor.length > 0) {
+            horarioFiltrado[dia] = bloquesDelProfesor;
+          }
+        }
+
+        if (Object.keys(horarioFiltrado).length > 0) {
+          horariosFiltrados.push({
+            grupo: data.grupo,
+            grupoId: data.horarioGrupoId,
+            horario: horarioFiltrado,
+          });
+        }
+      });
+
+      ctx.response.status = 200;
+      ctx.response.body = {
+        statusCode: 200,
+        intMessage: "Horarios del profesor encontrados",
+        data: horariosFiltrados,
+      };
+
+    } catch (error) {
+      console.error("❌ Error al listar horarios del profesor:", error);
+      ctx.response.status = 500;
+      ctx.response.body = {
+        statusCode: 500,
+        intMessage: "Error interno del servidor",
+        data: { message: "No se pudieron obtener los horarios del profesor" },
+      };
+    }
+  }
+
 };
