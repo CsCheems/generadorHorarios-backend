@@ -104,38 +104,38 @@ export const scheduleController = {
   },
 
   listarHorarios: async(ctx: Context) => {
-     try {
-      const horariosSnapshot = await db.collection("horarios").get();
-      const horarios = horariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    try {
+    const horariosSnapshot = await db.collection("horarios").get();
+    const horarios = horariosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      if (horarios.length === 0) {
-        ctx.response.status = 404;
-         ctx.response.body = {
-          statusCode: 404,
-           intMessage: "No se encontraron horarios",
-           data: { message: "No hay horarios registrados" },
-         };
-         return;
-       }
+    if (horarios.length === 0) {
+      ctx.response.status = 404;
+        ctx.response.body = {
+        statusCode: 404,
+          intMessage: "No se encontraron horarios",
+          data: { message: "No hay horarios registrados" },
+        };
+        return;
+      }
 
-       ctx.response.status = 200;
-       ctx.response.body = {
-         statusCode: 200,
-         intMessage: "Horarios encontrados",
-         data: horarios,
-       };
+      ctx.response.status = 200;
+      ctx.response.body = {
+        statusCode: 200,
+        intMessage: "Horarios encontrados",
+        data: horarios,
+      };
 
-     } catch (error) {
-       ctx.response.status = 500;
-       ctx.response.body = {
-       statusCode: 500,
-        intMessage: "Error interno del servidor",
-        data: { message: "Error al listar horarios" },
-       };
-     }
-   },
+    } catch (error) {
+      ctx.response.status = 500;
+      ctx.response.body = {
+      statusCode: 500,
+      intMessage: "Error interno del servidor",
+      data: { message: "Error al listar horarios" },
+      };
+    }
+  },
 
-   listarHorarioPorProfesor: async (ctx: Context) => {
+  listarHorarioPorProfesor: async (ctx: Context) => {
     try {
       const profesorId = ctx.state.user?.id;
       if (!profesorId) {
