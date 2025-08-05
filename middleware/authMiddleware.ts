@@ -1,8 +1,7 @@
-
-import { verify } from "https://deno.land/x/djwt/mod.ts";
+import { jwtVerify } from "npm:jose@5.9.6";
 import { Context } from "@oak/oak";
 
-const JWT_SECRET = Deno.env.get("SECRET_CLV"); 
+const secretKey = new TextEncoder().encode(Deno.env.get("JWT_SECRET") || "clave_secreta");
 
 export const authMiddleware = async (ctx: Context, next: () => Promise<unknown>) => {
   const authHeader = ctx.request.headers.get("Authorization");
@@ -13,7 +12,7 @@ export const authMiddleware = async (ctx: Context, next: () => Promise<unknown>)
   const token = authHeader.replace("Bearer ", "");
 
   try {
-    const payload = await verify(token, JWT_SECRET, "HS256");
+    const { payload } = await jwtVerify(token, secretKey);
     ctx.state.user = payload;
     await next();
   } catch (err) {

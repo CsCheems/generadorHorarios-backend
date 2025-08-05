@@ -3,7 +3,7 @@ import { authController } from "../controllers/authControllers.ts";
 import { colegioController } from "../controllers/colegioController.ts";
 import { profesorController } from "../controllers/professorController.ts";
 import { scheduleController } from "../controllers/scheduleController.ts";
-import { authMiddleware } from "../middlewares/authMiddleware.ts";
+import { authMiddleware } from "../middleware/authMiddleware.ts";
 
 const router = new Router();
 
