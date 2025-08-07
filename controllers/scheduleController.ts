@@ -138,48 +138,73 @@ export const scheduleController = {
   listarHorarioPorProfesor: async (ctx: Context) => {
     try {
       const profesorId = ctx.state.user?.id;
-      if (!profesorId) {
+      if (!profesorId || typeof profesorId !== "string") {
         ctx.throw(401, "No autorizado. Token inválido.");
       }
+
+      console.log("🔍 Buscando horarios para el profesor ID:", profesorId);
 
       // Obtener todos los horarios
       const horariosSnap = await db.collection("horarios").get();
       const horariosFiltrados = [];
 
+      console.log("📚 Total de horarios encontrados:", horariosSnap.size);
+
       horariosSnap.forEach((doc) => {
         const data = doc.data();
         const horario: Horario = data.horario;
 
-        const horarioFiltrado: Horario = {};
+        console.log(`\n📋 Procesando grupo: ${data.grupo}`);
+        console.log("📅 Horario completo del grupo:", JSON.stringify(horario, null, 2));
+
+        const horarioFiltrado: any = {};
+        let tieneClasesProfesor = false;
 
         for (const dia in horario) {
           const bloques = horario[dia];
+          const clasesDelProfesor = [];
 
-          // Filtrar solo los bloques donde el profesor esté asignado
-          const bloquesDelProfesor = bloques.map((bloque) => {
-            if (
-              bloque &&
-              bloque !== "RECESO" &&
-              bloque.profesorId === profesorId
-            ) {
-              return bloque;
+          console.log(`\n📆 Procesando día: ${dia}`);
+          console.log(`⏰ Bloques del día:`, bloques);
+
+          // Recorrer todos los bloques manteniendo el índice
+          bloques.forEach((bloque, index) => {
+            if (bloque && bloque !== "RECESO" && bloque.profesorId === profesorId) {
+              const claseConIndice = {
+                ...bloque,
+                indiceHora: index    // Agregar el índice de la hora (0-9)
+              };
+              clasesDelProfesor.push(claseConIndice);
+              tieneClasesProfesor = true;
+              
+              console.log(`✅ Clase encontrada en ${dia} - Índice ${index}:`, claseConIndice);
             }
-            return null;
-          }).filter((b) => b !== null); // Eliminar nulos
+          });
 
-          if (bloquesDelProfesor.length > 0) {
-            horarioFiltrado[dia] = bloquesDelProfesor;
+          // Solo incluir días donde el profesor tenga clases
+          if (clasesDelProfesor.length > 0) {
+            horarioFiltrado[dia] = clasesDelProfesor;
+            console.log(`📌 Clases del profesor en ${dia}:`, clasesDelProfesor);
           }
         }
 
-        if (Object.keys(horarioFiltrado).length > 0) {
-          horariosFiltrados.push({
+        if (tieneClasesProfesor) {
+          const grupoConHorario = {
             grupo: data.grupo,
             grupoId: data.horarioGrupoId,
             horario: horarioFiltrado,
-          });
+          };
+          horariosFiltrados.push(grupoConHorario);
+          
+          console.log(`\n🎯 Horario filtrado para grupo ${data.grupo}:`, JSON.stringify(horarioFiltrado, null, 2));
+        } else {
+          console.log(`❌ No se encontraron clases para el profesor en el grupo: ${data.grupo}`);
         }
       });
+
+      console.log("\n📊 RESULTADO FINAL:");
+      console.log("🔢 Total de grupos con clases del profesor:", horariosFiltrados.length);
+      console.log("📋 Horarios filtrados completos:", JSON.stringify(horariosFiltrados, null, 2));
 
       ctx.response.status = 200;
       ctx.response.body = {
@@ -198,5 +223,4 @@ export const scheduleController = {
       };
     }
   }
-
 };

@@ -10,6 +10,7 @@ export const authMiddleware = async (ctx: Context, next: () => Promise<unknown>)
   }
 
   const token = authHeader.replace("Bearer ", "");
+  console.log("Token recibido:", token);
 
   try {
     const { payload } = await jwtVerify(token, secretKey);
