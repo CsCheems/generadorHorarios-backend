@@ -181,6 +181,15 @@ export const authController = {
         data:{
           message: "Credenciales correctas!",
           token,
+          user: {
+            id: usuario.usuarioId,
+            usuario: usuario.usuario,
+            email: usuario.email,
+            telefono: usuario.telefono,
+            dob: usuario.fechaNacimiento,
+            rolId: usuario.rol,
+            rol: roleUser.rol
+          }
         },
       }
       return;
