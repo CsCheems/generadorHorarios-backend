@@ -222,5 +222,50 @@ export const scheduleController = {
         data: { message: "No se pudieron obtener los horarios del profesor" },
       };
     }
-  }
+  },
+
+  eliminarHorario: async (ctx: Context) => {
+    const horarioId = ctx.params.id;
+    
+    if (!horarioId) {
+      ctx.response.status = 400;
+      ctx.response.body = {
+        statusCode: 400,
+        intMessage: "ID requerido",
+        data: { message: "El ID del horario es requerido" },
+      };
+      return;
+    }
+
+    try {
+      const horarioDoc = await db.collection("horarios").doc(horarioId).get();
+      
+      if (!horarioDoc.exists) {
+        ctx.response.status = 404;
+        ctx.response.body = {
+          statusCode: 404,
+          intMessage: "Horario no encontrado",
+          data: { message: "No se encontró un horario con ese ID" },
+        };
+        return;
+      }
+
+      await db.collection("horarios").doc(horarioId).delete();
+
+      ctx.response.status = 200;
+      ctx.response.body = {
+        statusCode: 200,
+        intMessage: "Horario eliminado",
+        data: { message: "Horario eliminado exitosamente" },
+      };
+
+    } catch (error) {
+      ctx.response.status = 500;
+      ctx.response.body = {
+        statusCode: 500,
+        intMessage: "Error interno del servidor",
+        data: { message: error.message },
+      };
+    }
+  },
 };
