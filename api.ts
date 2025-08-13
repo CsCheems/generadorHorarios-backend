@@ -1,21 +1,19 @@
-// @ts-types="npm:@types/express@4.17.15"
+import { Application } from "@oak/oak";
+import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
+import { ruta } from "./routes/authRoutes.ts";
+import "https://deno.land/std@0.224.0/dotenv/load.ts";
 
-import {express} from "express";
-import cors from "cors";
+const app = new Application();
 const port = 8080;
-const app = express();
 
-app.use(cors());
-app.use(express.json());
+app.use(oakCors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 
-import {ruta} from './routes/authRoutes.ts';
+app.use(ruta.routes());
+app.use(ruta.allowedMethods());
 
-app.get("/", (req, res) => {
-  res.send("Welcome to the Dinosaur API!");
-});
+console.log(`Servidor iniciado en el puerto: ${port}`);
+await app.listen({ port });
 
-app.use('/api/auth', ruta);
-
-app.listen(port);
-
-console.log(`Servidor iniciado en el pueto: ${port}`);
