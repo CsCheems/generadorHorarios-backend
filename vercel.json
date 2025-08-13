@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/index.ts": {
+      "runtime": "vercel-deno@latest"
+    }
+  },
+  "routes": [
+    { "src": "/(.*)", "dest": "/api/index.ts" }
+  ]
+}

@@ -7,7 +7,10 @@ const app = new Application();
 const port = 8080;
 
 app.use(oakCors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173", 
+    "https://generador-horarios-five.vercel.app"
+  ],
   credentials: true,
 }));
 

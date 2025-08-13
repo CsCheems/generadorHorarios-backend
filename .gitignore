@@ -1,2 +1,16 @@
 config
 .env
+.env.local
+
+# Firebase
+config/firebase.json
+
+# Vercel
+.vercel
+
+# Logs
+*.log
+
+# Dependencies
+node_modules/
+.deno/
