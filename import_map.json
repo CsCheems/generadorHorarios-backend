@@ -6,6 +6,6 @@
     "date-fns/locale": "https://esm.sh/date-fns/locale/es",
     "firebase_admin": "npm:firebase-admin@11.11.1",
     "moment": "npm:moment", 
-    "nodemailer": "npm:nodemalier"
+    "nodemailer": "npm:nodemailer"
   }
 }
