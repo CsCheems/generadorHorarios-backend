@@ -126,7 +126,6 @@ export const colegioController = {
   registrarGrupo: async (ctx: Context) => {
     //const { nombreGrupo, nivel, grado, idColegi } = await ctx.request.body({ type: "json" }).value;
     const { nombreGrupo, nivel, grado } = await ctx.request.body({ type: "json" }).value;
-    console.log("Datos recibidos para registrar grupo:", { nombreGrupo, nivel, grado });
 
 
     //if (!nombreGrupo || !nivel || !grado || !idColegio) {
@@ -229,7 +228,7 @@ export const colegioController = {
 
   materiaRegistrar: async (ctx: Context) => {
     const { nombreMateria, horas, nivel, grado } = await ctx.request.body({ type: "json" }).value;
-    console.log("Datos recibidos para registrar materia:", { nombreMateria, horas, nivel, grado });
+    //console.log("Datos recibidos para registrar materia:", { nombreMateria, horas, nivel, grado });
     if (!nombreMateria || !horas) {
       ctx.response.status = 400;
       ctx.response.body = {

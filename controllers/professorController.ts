@@ -15,7 +15,7 @@ export const profesorController = {
     registro: async (ctx: Context) => {
         const { apellidoPaterno, apellidoMaterno,
             nombre, matricula, email, horasRestringidas, horasTrabajo, materiasAsignadas } = await ctx.request.body({type: "json"}).value;
-            console.log("Datos recibidos:", { apellidoPaterno, apellidoMaterno, nombre, email, horasRestringidas, horasTrabajo, materiasAsignadas });
+            //console.log("Datos recibidos:", { apellidoPaterno, apellidoMaterno, nombre, email, horasRestringidas, horasTrabajo, materiasAsignadas });
 
         //if(!apellidoPaterno || !apellidoMaterno || !nombres || !email || !matricula || !grupos || !horasRestringidas || !materiasAsignadas || !idAdmin){
         if(!apellidoPaterno || !apellidoMaterno || !nombre || !horasRestringidas || !horasTrabajo ||  !email || !materiasAsignadas){
@@ -63,10 +63,10 @@ export const profesorController = {
                 return;
             }
 
-             console.log("Email credentials:", {
-                user: Deno.env.get("EMAIL_USER"),
-                pass: Deno.env.get("EMAIL_PASS")?.length
-            });
+            // console.log("Email credentials:", {
+            //     user: Deno.env.get("EMAIL_USER"),
+            //     pass: Deno.env.get("EMAIL_PASS")?.length
+            // });
 
             const usuarioGenerado = matricula;
             const passwordPlano = nanoid(10);
