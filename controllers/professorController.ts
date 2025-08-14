@@ -287,6 +287,50 @@ export const profesorController = {
             };
         }
 
-    }
+    },
 
+    eliminarProfesor: async (ctx: Context) => {
+        const profesorId = ctx.params.id;
+        
+        if (!profesorId) {
+          ctx.response.status = 400;
+          ctx.response.body = {
+            statusCode: 400,
+            intMessage: "ID requerido",
+            data: { message: "El ID del profesor es requerido" },
+          };
+          return;
+        }
+    
+        try {
+          const profesorDoc = await db.collection("profesores").doc(profesorId).get();
+          
+          if (!profesorDoc.exists) {
+            ctx.response.status = 404;
+            ctx.response.body = {
+              statusCode: 404,
+              intMessage: "Profesor no encontrado",
+              data: { message: "No se encontró un profesor con ese ID" },
+            };
+            return;
+          }
+    
+          await db.collection("profesores").doc(profesorId).delete();
+    
+          ctx.response.status = 200;
+          ctx.response.body = {
+            statusCode: 200,
+            intMessage: "Profesor eliminado",
+            data: { message: "Profesor eliminado exitosamente" },
+          };
+    
+        } catch (error) {
+          ctx.response.status = 500;
+          ctx.response.body = {
+            statusCode: 500,
+            intMessage: "Error interno del servidor",
+            data: { message: error.message },
+          };
+        }
+      },
 };

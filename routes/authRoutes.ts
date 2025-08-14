@@ -30,6 +30,10 @@ router.post("/colegio/materiaRegistrar", colegioController.materiaRegistrar);
 
 router.get("/colegio/materias", colegioController.lista);
 
+router.delete("/colegio/materia/eliminar/:id", colegioController.eliminarMateria);
+
+router.delete("/colegio/grupo/eliminar/:id", colegioController.eliminarGrupo);
+
 //router.put("/colegio/:id", colegioController.actualizar);
 
 //profesor
@@ -42,11 +46,15 @@ router.get("/profesor/listar", profesorController.listar);
 
 router.post("/profesor/asignacion", profesorController.asignacion);
 
+router.delete("/profesor/eliminar/:id", profesorController.eliminarProfesor);
+
 router.post("/horario/crear", scheduleController.generarHorario);
 
 router.get("/horario/listar", scheduleController.listarHorarios);
 
 router.get("/horario/profesor", authMiddleware, scheduleController.listarHorarioPorProfesor);
+
+router.delete("/horario/eliminar/:id", scheduleController.eliminarHorario);
 
 
 export const ruta = router;

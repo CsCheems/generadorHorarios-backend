@@ -288,4 +288,94 @@ export const colegioController = {
       };
     }
   },
+
+  eliminarMateria: async (ctx: Context) => {
+    const materiaId = ctx.params.id;
+    
+    if (!materiaId) {
+      ctx.response.status = 400;
+      ctx.response.body = {
+        statusCode: 400,
+        intMessage: "ID requerido",
+        data: { message: "El ID de la materia es requerido" },
+      };
+      return;
+    }
+
+    try {
+      const materiaDoc = await db.collection("materias").doc(materiaId).get();
+      
+      if (!materiaDoc.exists) {
+        ctx.response.status = 404;
+        ctx.response.body = {
+          statusCode: 404,
+          intMessage: "Materia no encontrada",
+          data: { message: "No se encontró una materia con ese ID" },
+        };
+        return;
+      }
+
+      await db.collection("materias").doc(materiaId).delete();
+
+      ctx.response.status = 200;
+      ctx.response.body = {
+        statusCode: 200,
+        intMessage: "Materia eliminada",
+        data: { message: "Materia eliminada exitosamente" },
+      };
+
+    } catch (error) {
+      ctx.response.status = 500;
+      ctx.response.body = {
+        statusCode: 500,
+        intMessage: "Error interno del servidor",
+        data: { message: error.message },
+      };
+    }
+  },
+
+  eliminarGrupo: async (ctx: Context) => {
+    const grupoId = ctx.params.id;
+    
+    if (!grupoId) {
+      ctx.response.status = 400;
+      ctx.response.body = {
+        statusCode: 400,
+        intMessage: "ID requerido",
+        data: { message: "El ID del grupo es requerido" },
+      };
+      return;
+    }
+
+    try {
+      const grupoDoc = await db.collection("grupos").doc(grupoId).get();
+      
+      if (!grupoDoc.exists) {
+        ctx.response.status = 404;
+        ctx.response.body = {
+          statusCode: 404,
+          intMessage: "Grupo no encontrado",
+          data: { message: "No se encontró un grupo con ese ID" },
+        };
+        return;
+      }
+
+      await db.collection("grupos").doc(grupoId).delete();
+
+      ctx.response.status = 200;
+      ctx.response.body = {
+        statusCode: 200,
+        intMessage: "Grupo eliminado",
+        data: { message: "Grupo eliminado exitosamente" },
+      };
+
+    } catch (error) {
+      ctx.response.status = 500;
+      ctx.response.body = {
+        statusCode: 500,
+        intMessage: "Error interno del servidor",
+        data: { message: error.message },
+      };
+    }
+  },
 }
