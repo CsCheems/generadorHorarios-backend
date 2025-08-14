@@ -1,24 +1,12 @@
+import { db } from "../config/firebase.ts";
 import { hash, compare } from "bcrypt";
 import { format } from "datefns";
 import { es } from "date-fns/locale";
-import admin from "firebase_admin";
-import {readJson} from "https://deno.land/x/jsonfile@1.0.0/mod.ts";
 import { Context } from "@oak/oak";
 import moment from "npm:moment";
 import { createJWT } from "../utils/jwt.ts";
 import { UsuarioData } from "../interfaces/i_usuario.ts";
 import { RoleData } from "../interfaces/i_roles.ts";
-
-if (!admin.apps.length) {
-  const serviceAccount = await readJson("./config/firebase.json") as Record<string, string>;
-  serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
-
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-}
-
-const db = admin.firestore();
 
 export const authController = {
   salute: (ctx: Context) => {
@@ -119,7 +107,7 @@ export const authController = {
 
   login: async (ctx: Context) => {
     const {username, password} = await ctx.request.body({ type: "json" }).value;
-    console.log("Datos de login:", { username, password });
+   
     if(!username || !password){
       ctx.response.status = 400;
       ctx.response.body = {
@@ -193,6 +181,15 @@ export const authController = {
         data:{
           message: "Credenciales correctas!",
           token,
+          user: {
+            id: usuario.usuarioId,
+            usuario: usuario.usuario,
+            email: usuario.email,
+            telefono: usuario.telefono,
+            dob: usuario.fechaNacimiento,
+            rolId: usuario.rol,
+            rol: roleUser.rol
+          }
         },
       }
       return;

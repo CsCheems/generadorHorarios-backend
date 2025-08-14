@@ -1,6 +1,7 @@
 import { Application } from "@oak/oak";
 import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 import { ruta } from "./routes/authRoutes.ts";
+import "https://deno.land/std@0.224.0/dotenv/load.ts";
 
 const app = new Application();
 const port = 8080;
