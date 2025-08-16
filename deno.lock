@@ -1758,7 +1758,7 @@
     "dependencies": [
       "npm:firebase-admin@11.11.1",
       "npm:moment@*",
-      "npm:nodemalier@*"
+      "npm:nodemailer@*"
     ]
   }
 }

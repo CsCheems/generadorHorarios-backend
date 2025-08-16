@@ -4,7 +4,7 @@ import { ruta } from "./routes/authRoutes.ts";
 import "https://deno.land/std@0.224.0/dotenv/load.ts";
 
 const app = new Application();
-const port = 8080;
+const port = parseInt(Deno.env.get("PORT") ?? "8080", 10);
 
 app.use(oakCors({
   origin: "http://localhost:5173",
