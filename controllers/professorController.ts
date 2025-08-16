@@ -2,7 +2,7 @@ import { hash } from "bcrypt";
 import { format } from "datefns";
 import { es } from "date-fns/locale";
 import process from "node:process";
-import { db } from "../config/firebase.ts";
+import { db } from "../firebase/firebase.ts";
 import { Context } from "@oak/oak";
 import { createJWT } from "../utils/jwt.ts";
 import nodemailer from "npm:nodemailer";
