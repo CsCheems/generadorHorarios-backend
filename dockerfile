@@ -1,15 +1,13 @@
-# Usa la versión exacta de Deno que usas localmente
+# Imagen oficial de Deno 2.3.5
 FROM denoland/deno:2.3.5
 
-# Carpeta de trabajo
 WORKDIR /app
 
-# Copia todos los archivos del proyecto
+# Copia todo el proyecto
 COPY . .
 
-# Exponer el puerto (Render usará $PORT)
+# Expone el puerto (Render lo asigna con $PORT)
 EXPOSE 8080
 
-# Comando para ejecutar la app
-# Render pasará la variable de entorno PORT automáticamente
+# Ejecuta tu app
 CMD ["run", "-A", "api.ts"]
