@@ -7,7 +7,7 @@ const app = new Application();
 const port = parseInt(Deno.env.get("PORT") ?? "8080", 10);
 
 app.use(oakCors({
-  origin: "http://localhost:5173",
+  origin: Deno.env.get("CORS_ORIGIN") ?? "http://localhost:5173",
   credentials: true,
 }));
 
