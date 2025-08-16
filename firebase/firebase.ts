@@ -14,4 +14,19 @@ if (!admin.apps.length) {
 }
 
 export const db = admin.firestore();
+
+function keepAlive() {
+  setInterval(async () => {
+    try {
+      // Consulta rápida a Firestore para mantener la conexión viva
+      await db.collection("_health_check").limit(1).get();
+      console.log("💓 Firestore alive");
+    } catch (err: any) {
+      console.warn("⚠️ Firestore ping fallido:", err.message);
+    }
+  }, 2 * 60 * 1000); // cada 2 minutos
+}
+
+keepAlive();
+
 export default admin;
